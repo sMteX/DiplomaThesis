@@ -19,25 +19,28 @@ def getCroppedSize(cellSize, realSize):
     width, height = realSize
     return width // cellWidth * cellWidth, height // cellHeight * cellHeight
 
-def getSubsetsFromImage(partSize, imageSize):
+def getSubsetsFromImage(partSize, imageSize, step):
     """
     Returns an iterator generating all possible points where a part can be within an image
     :param partSize: Size of a searched part (width, height)
     :type partSize: (int, int)
     :param imageSize: Size of the image (width, height)
     :type imageSize: (int, int)
+    :param step: Step for the generator - tuple of (stepX, stepY)
+    :type step: (int, int)
     :return: Tuple (startX, startY, endX, endY) for each possible subset
     :rtype: (int, int, int, int)
     """
     pW, pH = partSize
     iW, iH = imageSize
+    stepX, stepY = step
     y = 0
     while y + pH < iH:
         x = 0
         while x + pW < iW:
             yield x, y, x + pW, y + pH
-            x = x + 1
-        y = y + 1
+            x = x + stepX
+        y = y + stepY
 
 def getSizeFromShape(shape):
     """Returns tuple (width, height) from shape (which is usually height, width)"""
@@ -61,15 +64,14 @@ signedGradients = True
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-
-partsCount = len(os.listdir(partsDir))
-originalCount = len(os.listdir(originalDir))
+outputDir = imagesDir + "/testing/output/hog"
 
 for i, filename in enumerate(os.listdir(partsDir)):
+    partPath = os.path.abspath(f"{partsDir}/{filename}")
     if DEBUG:
-        print(f"Current file: {partsDir}/{filename}")
+        print(f"Current file: {partPath}")
     # load a part
-    img = cv.imread(f"{partsDir}/{filename}", 0)
+    img = cv.imread(partPath, 0)
     partSize = getSizeFromShape(img.shape)
     if DEBUG:
         print(f"Part width: {partSize[0]}, height: {partSize[1]}")
@@ -94,7 +96,8 @@ for i, filename in enumerate(os.listdir(partsDir)):
         signedGradients
     )
     partDescriptor = hog.compute(img)
-    print(f"Part descriptor shape: {partDescriptor.shape}")
+    if DEBUG:
+        print(f"Part descriptor shape: {partDescriptor.shape}")
     bestResult = {
         "distance": float("inf"),    # default to +infinity
         "file": "",
@@ -106,16 +109,31 @@ for i, filename in enumerate(os.listdir(partsDir)):
 
     # for each part, iterate through original files and all parts of the images with the same size
     for j, originalFileName in enumerate(os.listdir(originalDir)):
-        origImg = cv.imread(f"{originalDir}/{originalFileName}", 0)
+        origPath = os.path.abspath(f"{originalDir}/{originalFileName}")
+        origImg = cv.imread(origPath, 0)
         origSize = getSizeFromShape(origImg.shape)
         if DEBUG:
             print(f"Original width: {origSize[0]}, height: {origSize[1]}")
-        for startX, startY, endX, endY in getSubsetsFromImage(croppedSize, origSize):
+        for startX, startY, endX, endY in getSubsetsFromImage(croppedSize, origSize, cellSize):
             subset = origImg[startY:endY, startX:endX]
             subsetSize = getSizeFromShape(subset.shape)
             if DEBUG:
                 print(f"Subset: [{startX}, {startY}] -> [{endX}, {endY}]")
                 print(f"Subset width: {subsetSize[0]}, height: {subsetSize[1]}")
             subsetDescriptor = hog.compute(subset)
-            print(f"Subset descriptor shape: {subsetDescriptor.shape}")
+            if DEBUG:
+                print(f"Subset descriptor shape: {subsetDescriptor.shape}")
             distance = np.linalg.norm(subsetDescriptor - partDescriptor)    # should calculate the euclidean distance
+            if distance < bestResult["distance"]:
+                bestResult["distance"] = distance
+                bestResult["file"] = origPath
+                bestResult["x"] = startX
+                bestResult["y"] = startY
+
+    print(f"Result for {partPath} found in", bestResult)
+    resultImage = cv.imread(bestResult["file"])
+    resultImage = cv.rectangle(resultImage,
+                               pt1=(bestResult["x"], bestResult["y"]),
+                               pt2=(bestResult["x"] + bestResult["dX"], bestResult["y"] + bestResult["dY"]),
+                               color=(0, 255, 0))
+    cv.imwrite(os.path.abspath(f"{outputDir}/{filename}"), resultImage)
