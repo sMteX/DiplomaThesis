@@ -67,14 +67,19 @@ partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/hog"
 
-computeTimes = {
-    "partDescriptor": [],       # how long it takes for hog.compute(part)
-    "subsetDescriptor": [],     # how long it takes for hog.compute(subset)
-    "distanceCalculating": [],  # how long it takes to calculate the euclidean distance
-    "allSubsetsCompare": [],    # how long it takes for all subsets from single original picture ("j" for loop)
-    "partProcess": [],          # how long it takes to process each part ("i" for loop)
+diagnostics = {
+    "computeTimes": {
+        "partDescriptor": [],       # how long it takes for hog.compute(part)
+        "subsetDescriptor": [],     # how long it takes for hog.compute(subset)
+        "distanceCalculating": [],  # how long it takes to calculate the euclidean distance
+        "allSubsetsCompare": [],    # how long it takes for all subsets from single original picture ("j" for loop)
+        "partProcess": [],          # how long it takes to process each part ("i" for loop)
+    },
+    "counts": {
+        "subsets": [],              # how many subsets are in each processed image for each part (9 parts * 10 images)
+        "descriptorSizes": [],      # how large the part descriptors are
+    }
 }
-subsetCounts = []
 
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
@@ -108,9 +113,10 @@ for i, filename in enumerate(os.listdir(partsDir)):
     )
     partDescriptorTime = timer()
     partDescriptor = hog.compute(img)
-    computeTimes["partDescriptor"].append(timer() - partDescriptorTime)
+    diagnostics["computeTimes"]["partDescriptor"].append(timer() - partDescriptorTime)
     if DEBUG:
         print(f"Part descriptor shape: {partDescriptor.shape}")
+    diagnostics["counts"]["descriptorSizes"].append(partDescriptor.shape[0])
     bestResult = {
         "distance": float("inf"),    # default to +infinity
         "file": "",
@@ -138,21 +144,21 @@ for i, filename in enumerate(os.listdir(partsDir)):
                 print(f"Subset width: {subsetSize[0]}, height: {subsetSize[1]}")
             subsetDescriptorTime = timer()
             subsetDescriptor = hog.compute(subset)
-            computeTimes["subsetDescriptor"].append(timer() - subsetDescriptorTime)
+            diagnostics["computeTimes"]["subsetDescriptor"].append(timer() - subsetDescriptorTime)
             if DEBUG:
                 print(f"Subset descriptor shape: {subsetDescriptor.shape}")
             distanceCalculatingTime = timer()
             distance = np.linalg.norm(subsetDescriptor - partDescriptor)    # should calculate the euclidean distance
-            computeTimes["distanceCalculating"].append(timer() - distanceCalculatingTime)
+            diagnostics["computeTimes"]["distanceCalculating"].append(timer() - distanceCalculatingTime)
             if distance < bestResult["distance"]:
                 bestResult["distance"] = distance
                 bestResult["file"] = origPath
                 bestResult["x"] = startX
                 bestResult["y"] = startY
-        subsetCounts.append(subsetCount)
-        computeTimes["allSubsetsCompare"].append(timer() - allSubsetsCompareTime)
+        diagnostics["counts"]["subsets"].append(subsetCount)
+        diagnostics["computeTimes"]["allSubsetsCompare"].append(timer() - allSubsetsCompareTime)
 
-    computeTimes["partProcess"].append(timer() - partProcessTime)
+    diagnostics["computeTimes"]["partProcess"].append(timer() - partProcessTime)
     print(f"Result for {partPath} found in", bestResult)
     resultImage = cv.imread(bestResult["file"])
     resultImage = cv.rectangle(resultImage,
@@ -162,21 +168,24 @@ for i, filename in enumerate(os.listdir(partsDir)):
     cv.imwrite(os.path.abspath(f"{outputDir}/{filename}"), resultImage)
 
 average = {
-    "partDescriptor": np.round(np.average(np.asarray(computeTimes["partDescriptor"])) * 1000, 3),
-    "subsetDescriptor": np.round(np.average(np.asarray(computeTimes["subsetDescriptor"])) * 1000, 3),
-    "distanceCalculating": np.round(np.average(np.asarray(computeTimes["distanceCalculating"])) * 1000, 3),
-    "allSubsetsCompare": np.round(np.average(np.asarray(computeTimes["allSubsetsCompare"])) * 1000, 3),
-    "partProcess": np.round(np.average(np.asarray(computeTimes["partProcess"])) * 1000, 3)
+    "partDescriptor": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partDescriptor"])) * 1000, 3),
+    "subsetDescriptor": np.round(np.average(np.asarray(diagnostics["computeTimes"]["subsetDescriptor"])) * 1000, 3),
+    "distanceCalculating": np.round(np.average(np.asarray(diagnostics["computeTimes"]["distanceCalculating"])) * 1000, 3),
+    "allSubsetsCompare": np.round(np.average(np.asarray(diagnostics["computeTimes"]["allSubsetsCompare"])) * 1000, 3),
+    "partProcess": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partProcess"])) * 1000, 3),
+    "subsetCount": np.round(np.average(np.asarray(diagnostics["counts"]["subsets"])), 2),
+    "descriptorSize": np.round(np.average(np.asarray(diagnostics["counts"]["descriptorSizes"])), 2),
 }
-averageSubsets = np.round(np.average(np.asarray(subsetCounts)), 2)
 
 print(f"""
 Average times [ms]:
 - Descriptor computing for a part: {average["partDescriptor"]}
 - Descriptor computing for a subset: {average["subsetDescriptor"]}
 - Calculating distance between descriptors: {average["distanceCalculating"]}
-- Processing all subsets (average {averageSubsets} subsets) for a single image: {average["allSubsetsCompare"]}
+- Processing all subsets (average {average["subsetCount"]} subsets) for a single image: {average["allSubsetsCompare"]}
 - Processing entire part: {average["partProcess"]}
+
+Average descriptor size: {average["descriptorSize"]} numbers
 """)
 
 # -----------------------------------------------------------------------------------
@@ -191,9 +200,13 @@ Average times [ms]:
     - Processing all subsets (average 2967.11 subsets) for a single image: 793.992
     - Processing entire part: 7959.978
     
+Average descriptor size: 14464.0 numbers    
+    
 Deductions:
     - calculating descriptors with HOG is very quick
-    - calculating Euclidean distances is quick too, even for large vectors
+    - calculating Euclidean distances is quick too, even for large vectors (average descriptor being over 14 000 items long)
     - most time is wasted on the sheer amount of image subsets for a single image
     - resulting in times    `number_of_parts * number_of_images * subsets_per_image * negligible_compute_time_per_subset`
+    - however, this is proportionate to cellSide parameter of HOG (which in return influences cellSize, blockSize and blockStride)
+    - larger cellSide => smaller descriptor, less subsets => quicker iterating through all images => quicker processing 
 """
