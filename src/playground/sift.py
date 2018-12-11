@@ -19,6 +19,10 @@ diagnostics = {
         "individualMatching": [],           # match individual part to individual image
         "sortingMatches": [],     # sort the individual matches
         "partProcess": [],                  # process each part completely
+    },
+    "counts": {
+        "partDescriptorSize": [],
+        "imageDescriptorSize": [],
     }
 }
 
@@ -41,6 +45,7 @@ for i, filename in enumerate(os.listdir(originalDir)):
     imageKeypointTime = timer()
     keypoints, descriptors = sift.detectAndCompute(img, None)
     diagnostics["computeTimes"]["imageKeypoints"].append(timer() - imageKeypointTime)
+    diagnostics["counts"]["imageDescriptorSize"].append(descriptors.size)
     imageData.append({
         "filename": filePath,
         "keypoints": keypoints,
@@ -55,6 +60,7 @@ for i, filename in enumerate(os.listdir(partsDir)):
     partKeypointTime = timer()
     partKeypoints, partDescriptors = sift.detectAndCompute(part, None)
     diagnostics["computeTimes"]["partKeypoints"].append(timer() - partKeypointTime)
+    diagnostics["counts"]["partDescriptorSize"].append(partDescriptors.size)
 
     bestResult = {
         "image": None,
@@ -106,6 +112,8 @@ average = {
     "individualMatching": np.round(np.average(np.asarray(diagnostics["computeTimes"]["individualMatching"])) * 1000, 3),
     "sortingMatches": np.round(np.average(np.asarray(diagnostics["computeTimes"]["sortingMatches"])) * 1000, 3),
     "partProcess": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partProcess"])) * 1000, 3),
+    "partDescriptorSizes": np.round(np.average(np.asarray(diagnostics["counts"]["partDescriptorSize"])), 2),
+    "imageDescriptorSizes": np.round(np.average(np.asarray(diagnostics["counts"]["imageDescriptorSize"])), 2)
 }
 
 print(f"""
@@ -116,6 +124,9 @@ Average times [ms]:
 - Sorting individual matches: {average["sortingMatches"]}
 - Matching all images to a part: {average["matching"]}
 - Processing entire part: {average["partProcess"]}
+
+Average part descriptor size: {average["partDescriptorSizes"]}
+Average image descriptor size: {average["imageDescriptorSizes"]}
 """)
 
 # -------------------------------------
@@ -130,7 +141,10 @@ Average times [ms]:
     - Sorting individual matches: 0.088
     - Matching all images to a part: 31.002
     - Processing entire part: 46.515
-    
+
+Average part descriptor size: 12458.67
+Average image descriptor size: 74598.4
+
 Deductions:
     - compared to HOG, SIFT computes keypoints for entire image (instead of just parts) and those are constant
     - this allows for pre-processing of image keypoints and descriptors prior to matching
