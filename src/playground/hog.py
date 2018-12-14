@@ -1,9 +1,8 @@
 import cv2 as cv
 import numpy as np
 import os
+from enum import Enum
 from timeit import default_timer as timer
-
-DEBUG = False
 
 def getCroppedSize(cellSize, realSize):
     """
@@ -23,6 +22,7 @@ def getCroppedSize(cellSize, realSize):
 def getSubsetsFromImage(partSize, imageSize, step):
     """
     Returns an iterator generating all possible points where a part can be within an image
+
     :param partSize: Size of a searched part (width, height)
     :type partSize: (int, int)
     :param imageSize: Size of the image (width, height)
@@ -47,6 +47,12 @@ def getSizeFromShape(shape):
     """Returns tuple (width, height) from shape (which is usually height, width)"""
     return shape[1], shape[0]
 
+def getReshapedSize(descriptorSize, winSize, blockSize, blockStride):
+    w = (winSize[0] - blockSize[0]) / blockStride[0] + 1
+    h = (winSize[1] - blockSize[1]) / blockStride[1] + 1
+    dSize = descriptorSize / w / h
+    return int(w), int(h), int(dSize), 1
+
 # parametry pro HOGDescriptor
 cellSide = 4
 cellSize = (cellSide, cellSide)  # w x h
@@ -67,34 +73,72 @@ partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/hog"
 
+imageData = []
+"""
+format
+{
+    "descriptors": reshaped array
+    "filename": path
+}
+"""
+
 diagnostics = {
-    "computeTimes": {
-        "partDescriptor": [],       # how long it takes for hog.compute(part)
-        "subsetDescriptor": [],     # how long it takes for hog.compute(subset)
-        "distanceCalculating": [],  # how long it takes to calculate the euclidean distance
-        "allSubsetsCompare": [],    # how long it takes for all subsets from single original picture ("j" for loop)
-        "partProcess": [],          # how long it takes to process each part ("i" for loop)
+    "times": {
+        "partDescriptor": [],
+        "imageDescriptor": [],
+        "distanceComputing": [],
+        "imageProcess": [],
+        "partProcess": [],
     },
     "counts": {
-        "subsets": [],              # how many subsets are in each processed image for each part (9 parts * 10 images)
-        "descriptorSizes": [],      # how large the part descriptors are
+        "partDescriptorSize": [],
+        "imageDescriptorSize": [],
+        "subsets": [],
     }
 }
+
+for i, filename in enumerate(os.listdir(originalDir)):
+    filePath = os.path.abspath(f"{originalDir}/{filename}")
+    img = cv.imread(filePath, 0)
+    croppedSize = getCroppedSize(cellSize, getSizeFromShape(img.shape))
+    img = cv.resize(img, croppedSize)
+    hog = cv.HOGDescriptor(
+        croppedSize,
+        blockSize,
+        blockStride,
+        cellSize,
+        nBins,
+        derivAperture,
+        winSigma,
+        histogramNormType,
+        L2HysThreshold,
+        gammaCorrection,
+        nLevels,
+        signedGradients
+    )
+
+    imageDescriptorTime = timer()
+    descriptor = hog.compute(img)
+    diagnostics["times"]["imageDescriptor"].append(timer() - imageDescriptorTime)
+
+    newSize = getReshapedSize(hog.getDescriptorSize(), croppedSize, blockSize, blockStride)
+    reshapedDescriptor = np.reshape(descriptor, newSize)
+
+    diagnostics["counts"]["imageDescriptorSize"].append(reshapedDescriptor.size)
+
+    imageData.append({
+        "filename": filePath,
+        "descriptors": reshapedDescriptor
+    })
+
 
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
     partPath = os.path.abspath(f"{partsDir}/{filename}")
-    if DEBUG:
-        print(f"Current file: {partPath}")
-    # load a part
     img = cv.imread(partPath, 0)
     partSize = getSizeFromShape(img.shape)
-    if DEBUG:
-        print(f"Part width: {partSize[0]}, height: {partSize[1]}")
     # resize it to multiple of cellSize
     croppedSize = getCroppedSize(cellSize, partSize)
-    if DEBUG:
-        print(f"Cropped width: {croppedSize[0]}, height: {croppedSize[1]}")
     img = cv.resize(img, croppedSize)
     # construct a HOG descriptor for given size
     hog = cv.HOGDescriptor(
@@ -111,87 +155,96 @@ for i, filename in enumerate(os.listdir(partsDir)):
         nLevels,
         signedGradients
     )
+
     partDescriptorTime = timer()
-    partDescriptor = hog.compute(img)
-    diagnostics["computeTimes"]["partDescriptor"].append(timer() - partDescriptorTime)
-    if DEBUG:
-        print(f"Part descriptor shape: {partDescriptor.shape}")
-    diagnostics["counts"]["descriptorSizes"].append(partDescriptor.shape[0])
-    bestResult = {
+    originalPartDescriptor = hog.compute(img)
+    diagnostics["times"]["partDescriptor"].append(timer() - partDescriptorTime)
+
+    newPartSize = getReshapedSize(hog.getDescriptorSize(), croppedSize, blockSize, blockStride)
+    partDescriptor = np.reshape(originalPartDescriptor, newPartSize)
+
+    diagnostics["counts"]["partDescriptorSize"].append(partDescriptor.size)
+
+    best = {
         "distance": float("inf"),    # default to +infinity
-        "file": "",
-        "x": -1,
-        "y": -1,
-        "dX": croppedSize[0],
-        "dY": croppedSize[1]
+        "filename": "",
+        "sX": -1,
+        "sY": -1,
+        "eX": -1,
+        "eY": -1
     }
 
     # for each part, iterate through original files and all parts of the images with the same size
-    for j, originalFileName in enumerate(os.listdir(originalDir)):
-        origPath = os.path.abspath(f"{originalDir}/{originalFileName}")
-        origImg = cv.imread(origPath, 0)
-        origSize = getSizeFromShape(origImg.shape)
-        if DEBUG:
-            print(f"Original width: {origSize[0]}, height: {origSize[1]}")
-        allSubsetsCompareTime = timer()
-        subsetCount = 0
-        for startX, startY, endX, endY in getSubsetsFromImage(croppedSize, origSize, cellSize):
-            subsetCount = subsetCount + 1
-            subset = origImg[startY:endY, startX:endX]
-            subsetSize = getSizeFromShape(subset.shape)
-            if DEBUG:
-                print(f"Subset: [{startX}, {startY}] -> [{endX}, {endY}]")
-                print(f"Subset width: {subsetSize[0]}, height: {subsetSize[1]}")
-            subsetDescriptorTime = timer()
-            subsetDescriptor = hog.compute(subset)
-            diagnostics["computeTimes"]["subsetDescriptor"].append(timer() - subsetDescriptorTime)
-            if DEBUG:
-                print(f"Subset descriptor shape: {subsetDescriptor.shape}")
-            distanceCalculatingTime = timer()
-            distance = np.linalg.norm(subsetDescriptor - partDescriptor)    # should calculate the euclidean distance
-            diagnostics["computeTimes"]["distanceCalculating"].append(timer() - distanceCalculatingTime)
-            if distance < bestResult["distance"]:
-                bestResult["distance"] = distance
-                bestResult["file"] = origPath
-                bestResult["x"] = startX
-                bestResult["y"] = startY
-        diagnostics["counts"]["subsets"].append(subsetCount)
-        diagnostics["computeTimes"]["allSubsetsCompare"].append(timer() - allSubsetsCompareTime)
+    for image in imageData:
+        imageProcessTime = timer()
+        subsets = 0
+        for startX, startY, endX, endY in getSubsetsFromImage(partDescriptor.shape[:2], image["descriptors"].shape[:2], (1, 1)):
+            subsets = subsets + 1
+            subset = image["descriptors"][startX:endX, startY:endY, :, :]
 
-    diagnostics["computeTimes"]["partProcess"].append(timer() - partProcessTime)
-    print(f"Result for {partPath} found in", bestResult)
-    resultImage = cv.imread(bestResult["file"])
+            distanceTime = timer()
+            distance = np.linalg.norm(subset - partDescriptor)    # should calculate the euclidean distance
+            diagnostics["times"]["distanceComputing"].append(timer() - distanceTime)
+
+            if distance < best["distance"]:
+                best["distance"] = distance
+                best["filename"] = image["filename"]
+                best["sX"] = startX * blockStride[0]
+                best["sY"] = startY * blockStride[1]
+                best["eX"] = best["sX"] + partSize[0]
+                best["eY"] = best["sY"] + partSize[1]
+        diagnostics["times"]["imageProcess"].append(timer() - imageProcessTime)
+        diagnostics["counts"]["subsets"].append(subsets)
+
+    diagnostics["times"]["partProcess"].append(timer() - partProcessTime)
+
+    print(f"Result for {partPath} found in", best)
+    resultImage = cv.imread(best["filename"])
     resultImage = cv.rectangle(resultImage,
-                               pt1=(bestResult["x"], bestResult["y"]),
-                               pt2=(bestResult["x"] + bestResult["dX"], bestResult["y"] + bestResult["dY"]),
-                               color=(0, 255, 0))
-    cv.imwrite(os.path.abspath(f"{outputDir}/{filename}"), resultImage)
+                               pt1=(best["sX"], best["sY"]),
+                               pt2=(best["eX"], best["eY"]),
+                               color=(0, 0, 255))
+    cv.imwrite(os.path.abspath(f"{outputDir}/new_{filename}"), resultImage)
+
+class AverageType(Enum):
+    TIME = 1
+    COUNT = 2
+
+def avg(array, averageType=AverageType.TIME):
+    average = np.average(np.asarray(array))
+    if averageType == AverageType.TIME:
+        return np.round(average * 1000, 3)
+    else:
+        return np.round(average, 2)
 
 average = {
-    "partDescriptor": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partDescriptor"])) * 1000, 3),
-    "subsetDescriptor": np.round(np.average(np.asarray(diagnostics["computeTimes"]["subsetDescriptor"])) * 1000, 3),
-    "distanceCalculating": np.round(np.average(np.asarray(diagnostics["computeTimes"]["distanceCalculating"])) * 1000, 3),
-    "allSubsetsCompare": np.round(np.average(np.asarray(diagnostics["computeTimes"]["allSubsetsCompare"])) * 1000, 3),
-    "partProcess": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partProcess"])) * 1000, 3),
-    "subsetCount": np.round(np.average(np.asarray(diagnostics["counts"]["subsets"])), 2),
-    "descriptorSize": np.round(np.average(np.asarray(diagnostics["counts"]["descriptorSizes"])), 2),
+    "partDescriptor": avg(diagnostics["times"]["partDescriptor"]),
+    "imageDescriptor": avg(diagnostics["times"]["imageDescriptor"]),
+    "distanceComputing": avg(diagnostics["times"]["distanceComputing"]),
+    "imageProcess": avg(diagnostics["times"]["imageProcess"]),
+    "partProcess": avg(diagnostics["times"]["partProcess"]),
+
+    "partDescriptorSize": avg(diagnostics["counts"]["partDescriptorSize"], AverageType.COUNT),
+    "imageDescriptorSize": avg(diagnostics["counts"]["imageDescriptorSize"], AverageType.COUNT),
+    "subsets": avg(diagnostics["counts"]["subsets"], AverageType.COUNT),
 }
 
 print(f"""
 Average times [ms]:
 - Descriptor computing for a part: {average["partDescriptor"]}
-- Descriptor computing for a subset: {average["subsetDescriptor"]}
-- Calculating distance between descriptors: {average["distanceCalculating"]}
-- Processing all subsets (average {average["subsetCount"]} subsets) for a single image: {average["allSubsetsCompare"]}
+- Descriptor computing for a image: {average["imageDescriptor"]}
+- Calculating distance between descriptors: {average["distanceComputing"]}
+- Processing all subsets (average {average["subsets"]} subsets) for a single image: {average["imageProcess"]}
 - Processing entire part: {average["partProcess"]}
 
-Average descriptor size: {average["descriptorSize"]} numbers
+Average part descriptor size: {average["partDescriptorSize"]}
+Average image descriptor size: {average["imageDescriptorSize"]} 
 """)
 
 # -----------------------------------------------------------------------------------
 
 """
-Results:
+Results before rework:
 
 Average times [ms]:
     - Descriptor computing for a part: 0.351
@@ -202,11 +255,25 @@ Average times [ms]:
     
 Average descriptor size: 14464.0 numbers    
     
+    
+Results after rework:
+
+Average times [ms]:
+    - Descriptor computing for a part: 0.333
+    - Descriptor computing for a image: 5.399
+    - Calculating distance between descriptors: 0.027
+    - Processing all subsets (average 2967.11 subsets) for a single image: 91.028
+    - Processing entire part: 911.149
+    
+Average part descriptor size: 14464.0
+Average image descriptor size: 197136.0 
+
 Deductions:
     - calculating descriptors with HOG is very quick
-    - calculating Euclidean distances is quick too, even for large vectors (average descriptor being over 14 000 items long)
+        - improved version also allows for pre-computing the descriptors, VASTLY improving speed (over 8.7x faster)
     - most time is wasted on the sheer amount of image subsets for a single image
-    - resulting in times    `number_of_parts * number_of_images * subsets_per_image * negligible_compute_time_per_subset`
+        - but AFAIK, there's no way around it, now that it's precomputed even
     - however, this is proportionate to cellSide parameter of HOG (which in return influences cellSize, blockSize and blockStride)
     - larger cellSide => smaller descriptor, less subsets => quicker iterating through all images => quicker processing 
+        - might not be a problem for larger images, for small ones it's bad though
 """
