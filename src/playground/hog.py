@@ -133,6 +133,15 @@ for i, filename in enumerate(os.listdir(originalDir)):
         "descriptors": reshapedDescriptor
     })
 
+results = []    # in order to not count drawing and saving images into total time, refactor out
+"""
+format
+{
+    "filename"  - path of the SAVED file
+    "original"  - path of the ORIGINAL file (where the match was found)
+    "sX", "sY", "eX", "eY"  - coords of the rectangle
+}
+"""
 
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
@@ -200,14 +209,24 @@ for i, filename in enumerate(os.listdir(partsDir)):
 
     diagnostics["times"]["partProcess"].append(timer() - partProcessTime)
 
-    print(f"Result for {partPath} found in", best)
-    resultImage = cv.imread(best["filename"])
-    resultImage = cv.rectangle(resultImage,
-                               pt1=(best["sX"], best["sY"]),
-                               pt2=(best["eX"], best["eY"]),
-                               color=(0, 0, 255))
-    cv.imwrite(os.path.abspath(f"{outputDir}/new_{filename}"), resultImage)
+    results.append({
+        "filename": os.path.abspath(f"{outputDir}/new_{filename}"),
+        "original": best["filename"],
+        "sX": best["sX"],
+        "sY": best["sY"],
+        "eX": best["eX"],
+        "eY": best["eY"]
+    })
+
 totalTime = np.round((timer() - totalTime) * 1000, 3)
+
+for result in results:
+    resultImage = cv.imread(result["original"])
+    resultImage = cv.rectangle(resultImage,
+                               pt1=(result["sX"], result["sY"]),
+                               pt2=(result["eX"], result["eY"]),
+                               color=(0, 0, 255))
+    cv.imwrite(result["filename"], resultImage)
 
 class AverageType(Enum):
     TIME = 1
@@ -262,7 +281,7 @@ Average descriptor size: 14464.0 numbers
     
 Results after rework:
 
-Total time [ms]: 8997.444
+Total time [ms]: 8762.391
 Average times [ms]:
     - Descriptor computing for a part: 0.333
     - Descriptor computing for a image: 5.399
