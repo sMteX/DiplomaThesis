@@ -38,6 +38,7 @@ format:
     descriptors
 }
 """
+totalTime = timer()
 # SIFT keypoints of the original images are the same for every processed part, we can pre-compute
 for i, filename in enumerate(os.listdir(originalDir)):
     filePath = os.path.abspath(f"{originalDir}/{filename}")
@@ -105,6 +106,8 @@ for i, filename in enumerate(os.listdir(partsDir)):
     print(f'Match for {filePath} found in {bestResult["image"]["filename"]}')
     cv.imwrite(os.path.abspath(f'{outputDir}/{"kp_" if DRAW_MATCHES else ""}{filename}'), resultImage)
 
+totalTime = np.round((timer() - totalTime) * 1000, 3)
+
 average = {
     "partKeypoints": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partKeypoints"])) * 1000, 3),
     "imageKeypoints": np.round(np.average(np.asarray(diagnostics["computeTimes"]["imageKeypoints"])) * 1000, 3),
@@ -117,6 +120,7 @@ average = {
 }
 
 print(f"""
+Total time [ms]: {totalTime}
 Average times [ms]:
 - Keypoint and descriptor computing for a part: {average["partKeypoints"]}
 - Keypoint and descriptor computing for an image: {average["imageKeypoints"]}
@@ -134,6 +138,7 @@ Average image descriptor size: {average["imageDescriptorSizes"]}
 """
 Results:
 
+Total time [ms]: 806.849
 Average times [ms]:
     - Keypoint and descriptor computing for a part: 13.942
     - Keypoint and descriptor computing for an image: 120.955

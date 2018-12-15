@@ -97,6 +97,8 @@ diagnostics = {
     }
 }
 
+totalTime = timer()
+
 for i, filename in enumerate(os.listdir(originalDir)):
     filePath = os.path.abspath(f"{originalDir}/{filename}")
     img = cv.imread(filePath, 0)
@@ -205,6 +207,7 @@ for i, filename in enumerate(os.listdir(partsDir)):
                                pt2=(best["eX"], best["eY"]),
                                color=(0, 0, 255))
     cv.imwrite(os.path.abspath(f"{outputDir}/new_{filename}"), resultImage)
+totalTime = np.round((timer() - totalTime) * 1000, 3)
 
 class AverageType(Enum):
     TIME = 1
@@ -230,6 +233,7 @@ average = {
 }
 
 print(f"""
+Total time [ms]: {totalTime}
 Average times [ms]:
 - Descriptor computing for a part: {average["partDescriptor"]}
 - Descriptor computing for a image: {average["imageDescriptor"]}
@@ -258,6 +262,7 @@ Average descriptor size: 14464.0 numbers
     
 Results after rework:
 
+Total time [ms]: 8997.444
 Average times [ms]:
     - Descriptor computing for a part: 0.333
     - Descriptor computing for a image: 5.399
