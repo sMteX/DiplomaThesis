@@ -137,8 +137,8 @@ results = []    # in order to not count drawing and saving images into total tim
 """
 format
 {
-    "filename"  - path of the SAVED file
-    "original"  - path of the ORIGINAL file (where the match was found)
+    "outputFilename"  - path of the SAVED file
+    "imageFilename"  - path of the ORIGINAL file (where the match was found)
     "sX", "sY", "eX", "eY"  - coords of the rectangle
 }
 """
@@ -210,8 +210,8 @@ for i, filename in enumerate(os.listdir(partsDir)):
     diagnostics["times"]["partProcess"].append(timer() - partProcessTime)
 
     results.append({
-        "filename": os.path.abspath(f"{outputDir}/new_{filename}"),
-        "original": best["filename"],
+        "outputFilename": os.path.abspath(f"{outputDir}/new_{filename}"),
+        "imageFilename": best["filename"],
         "sX": best["sX"],
         "sY": best["sY"],
         "eX": best["eX"],
@@ -221,12 +221,12 @@ for i, filename in enumerate(os.listdir(partsDir)):
 totalTime = np.round((timer() - totalTime) * 1000, 3)
 
 for result in results:
-    resultImage = cv.imread(result["original"])
+    resultImage = cv.imread(result["imageFilename"])
     resultImage = cv.rectangle(resultImage,
                                pt1=(result["sX"], result["sY"]),
                                pt2=(result["eX"], result["eY"]),
                                color=(0, 0, 255))
-    cv.imwrite(result["filename"], resultImage)
+    cv.imwrite(result["outputFilename"], resultImage)
 
 class AverageType(Enum):
     TIME = 1
@@ -281,20 +281,20 @@ Average descriptor size: 14464.0 numbers
     
 Results after rework:
 
-Total time [ms]: 8762.391
+Total time [ms]: 8541.395
 Average times [ms]:
-    - Descriptor computing for a part: 0.333
-    - Descriptor computing for a image: 5.399
-    - Calculating distance between descriptors: 0.027
-    - Processing all subsets (average 2967.11 subsets) for a single image: 91.028
-    - Processing entire part: 911.149
+    - Descriptor computing for a part: 0.352
+    - Descriptor computing for a image: 5.463
+    - Calculating distance between descriptors: 0.028
+    - Processing all subsets (average 2967.11 subsets) for a single image: 93.95
+    - Processing entire part: 940.445
     
 Average part descriptor size: 14464.0
 Average image descriptor size: 197136.0 
 
 Deductions:
     - calculating descriptors with HOG is very quick
-        - improved version also allows for pre-computing the descriptors, VASTLY improving speed (over 8.7x faster)
+        - improved version also allows for pre-computing the descriptors, VASTLY improving speed (88.18 % faster)
     - most time is wasted on the sheer amount of image subsets for a single image
         - but AFAIK, there's no way around it, now that it's precomputed even
     - however, this is proportionate to cellSide parameter of HOG (which in return influences cellSize, blockSize and blockStride)

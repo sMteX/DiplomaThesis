@@ -67,6 +67,22 @@ for i, filename in enumerate(os.listdir(originalDir)):
         "descriptors": descriptors
     })
 
+results = []
+"""
+format
+{
+    "outputFilename"  - path of the SAVED file
+    "imageFilename"  - path of the ORIGINAL file (where the match was found)
+    "sX", "sY", "eX", "eY"  - coords of the rectangle
+
+    Additional data for drawing keypoint matches
+
+    "partFilename"  - path of the PART file
+    "partKeypoints", "imageKeypoints"   - keypoints of the part and image
+    "topMatches"    - selected N best matches for keypoints
+}
+"""
+
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
     filePath = os.path.abspath(f"{partsDir}/{filename}")
@@ -117,16 +133,37 @@ for i, filename in enumerate(os.listdir(partsDir)):
         bestKeypointImage.pt[1] - bestKeypointPart.pt[1]).astype(int)
     endX, endY = startX + part.shape[1], startY + part.shape[0]
 
-    resultImage = cv.imread(bestResult["image"]["filename"])
-    resultImage = cv.rectangle(resultImage, pt1=(startX, startY), pt2=(endX, endY), color=(0, 255, 0))
-    if DRAW_MATCHES:
-        resultImage = cv.drawMatches(partColor, partKeypoints, resultImage, bestResult["image"]["keypoints"],
-                                     bestResult["topMatches"], resultImage,
-                                     flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-    print(f'Match for {filePath} found in {bestResult["image"]["filename"]}')
-    cv.imwrite(os.path.abspath(f'{outputDir}/{"kp_" if DRAW_MATCHES else ""}{filename}'), resultImage)
+    results.append({
+        "outputFilename": os.path.abspath(f"{outputDir}/{'kp_' if DRAW_MATCHES else ''}{filename}"),
+        "imageFilename": bestResult["image"]["filename"],
+        "sX": startX,
+        "sY": startY,
+        "eX": endX,
+        "eY": endY,
+        # for DRAW_MATCHES=True
+        "partFilename": filePath,
+        "partKeypoints": partKeypoints,
+        "imageKeypoints": bestResult["image"]["keypoints"],
+        "topMatches": bestResult["topMatches"]
+    })
 
 totalTime = np.round((timer() - totalTime) * 1000, 3)
+
+for result in results:
+    resultImage = cv.imread(result["imageFilename"])
+    resultImage = cv.rectangle(img=resultImage,
+                               pt1=(result["sX"], result["sY"]),
+                               pt2=(result["eX"], result["eY"]),
+                               color=(0, 255, 0))
+    if DRAW_MATCHES:
+        resultImage = cv.drawMatches(img1=cv.imread(result["partFilename"]),
+                                     keypoints1=result["partKeypoints"],
+                                     img2=resultImage,
+                                     keypoints2=result["imageKeypoints"],
+                                     matches1to2=result["topMatches"],
+                                     outImg=resultImage,
+                                     flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
+    cv.imwrite(result["outputFilename"], resultImage)
 
 average = {
     "partKeypoints": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partKeypoints"])) * 1000, 3),
@@ -158,14 +195,14 @@ Average image descriptor size: {average["imageDescriptorSizes"]}
 """
 Results:
 
-Total time [ms]: 322.578
+Total time [ms]: 246.199
 Average times [ms]:
-    - Keypoint and descriptor computing for a part: 0.49
-    - Keypoint and descriptor computing for an image: 6.921
-    - Matching an individual image with a part: 2.893
-    - Sorting individual matches: 0.023
-    - Matching all images to a part: 29.577
-    - Processing entire part: 30.775
+    - Keypoint and descriptor computing for a part: 0.486
+    - Keypoint and descriptor computing for an image: 6.825
+    - Matching an individual image with a part: 2.392
+    - Sorting individual matches: 0.025
+    - Matching all images to a part: 24.609
+    - Processing entire part: 25.893
     
 Average part descriptor size: 4229.33
 Average image descriptor size: 52163.2
@@ -175,11 +212,8 @@ Deductions:
         - FAST produces keypoints, but doesn't have compute() method for descriptors
         - BRIEF produces descriptors, but doesn't have detect() method for keypoints 
     - BRIEF uses different matching norm - Hamming distance
-    - computing the descriptors is much faster than SURF (over 90% faster)
-    - on the other hand, matching the part to images is much slower 
-        - "much" slower - it's still in order of milliseconds
-        - matching individual part with individual image is over 2.5x slower
-        - processing entire parts is 1.68x slower
+    - computing the descriptors is much faster than SURF
+    - on the other hand, matching the part to images is much slower (but still in order of milliseconds)
     - the descriptor sizes are also larger
     - major problem is that BRIEF can't compute descriptors on small sizes 
         - BRIEF filters out keypoints in 28px range from the borders, so that makes minimum image size 57x57px

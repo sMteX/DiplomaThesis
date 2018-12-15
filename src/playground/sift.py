@@ -53,6 +53,22 @@ for i, filename in enumerate(os.listdir(originalDir)):
         "descriptors": descriptors
     })
 
+results = []
+"""
+format
+{
+    "outputFilename"  - path of the SAVED file
+    "imageFilename"  - path of the ORIGINAL file (where the match was found)
+    "sX", "sY", "eX", "eY"  - coords of the rectangle
+    
+    Additional data for drawing keypoint matches
+    
+    "partFilename"  - path of the PART file
+    "partKeypoints", "imageKeypoints"   - keypoints of the part and image
+    "topMatches"    - selected N best matches for keypoints
+}
+"""
+
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
     filePath = os.path.abspath(f"{partsDir}/{filename}")
@@ -99,14 +115,38 @@ for i, filename in enumerate(os.listdir(partsDir)):
     startX, startY = np.round(bestKeypointImage.pt[0] - bestKeypointPart.pt[0]).astype(int), np.round(bestKeypointImage.pt[1] - bestKeypointPart.pt[1]).astype(int)
     endX, endY = startX + part.shape[1], startY + part.shape[0]
 
-    resultImage = cv.imread(bestResult["image"]["filename"])
-    resultImage = cv.rectangle(resultImage, pt1=(startX, startY), pt2=(endX, endY), color=(0, 255, 0))
-    if DRAW_MATCHES:
-        resultImage = cv.drawMatches(partColor, partKeypoints, resultImage, bestResult["image"]["keypoints"], bestResult["topMatches"], resultImage, flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-    print(f'Match for {filePath} found in {bestResult["image"]["filename"]}')
-    cv.imwrite(os.path.abspath(f'{outputDir}/{"kp_" if DRAW_MATCHES else ""}{filename}'), resultImage)
+    results.append({
+        "outputFilename": os.path.abspath(f"{outputDir}/{'kp_' if DRAW_MATCHES else ''}{filename}"),
+        "imageFilename": bestResult["image"]["filename"],
+        "sX": startX,
+        "sY": startY,
+        "eX": endX,
+        "eY": endY,
+        # for DRAW_MATCHES=True
+        "partFilename": filePath,
+        "partKeypoints": partKeypoints,
+        "imageKeypoints": bestResult["image"]["keypoints"],
+        "topMatches": bestResult["topMatches"]
+    })
 
 totalTime = np.round((timer() - totalTime) * 1000, 3)
+
+for result in results:
+    resultImage = cv.imread(result["imageFilename"])
+    resultImage = cv.rectangle(img=resultImage,
+                               pt1=(result["sX"], result["sY"]),
+                               pt2=(result["eX"], result["eY"]),
+                               color=(0, 255, 0))
+    if DRAW_MATCHES:
+        resultImage = cv.drawMatches(img1=cv.imread(result["partFilename"]),
+                                     keypoints1=result["partKeypoints"],
+                                     img2=resultImage,
+                                     keypoints2=result["imageKeypoints"],
+                                     matches1to2=result["topMatches"],
+                                     outImg=resultImage,
+                                     flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
+    cv.imwrite(result["outputFilename"], resultImage)
+
 
 average = {
     "partKeypoints": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partKeypoints"])) * 1000, 3),
@@ -138,20 +178,20 @@ Average image descriptor size: {average["imageDescriptorSizes"]}
 """
 Results:
 
-Total time [ms]: 806.849
+Total time [ms]: 690.441
 Average times [ms]:
-    - Keypoint and descriptor computing for a part: 13.942
-    - Keypoint and descriptor computing for an image: 120.955
-    - Matching an individual image with a part: 2.886
-    - Sorting individual matches: 0.088
-    - Matching all images to a part: 31.002
-    - Processing entire part: 46.515
+    - Keypoint and descriptor computing for a part: 5.184
+    - Keypoint and descriptor computing for an image: 48.543
+    - Matching an individual image with a part: 1.35
+    - Sorting individual matches: 0.029
+    - Matching all images to a part: 14.314
+    - Processing entire part: 20.201
 
 Average part descriptor size: 12458.67
 Average image descriptor size: 74598.4
 
 Deductions:
-    - compared to HOG, SIFT computes keypoints for entire image (instead of just parts) and those are constant
-    - this allows for pre-processing of image keypoints and descriptors prior to matching
-    - this vastly improves matching speed (by a factor of 17x in the case of HOG cellSize = 4 => 99,415 % faster)
+    - compared to HOG, SIFT is much faster and I think it should be more robust 
+    - after improving HOG, both pre-compute their descriptors, so the difference is most likely in the descriptor sizes
+    - average image descriptor for SIFT is 62.16 % smaller than HOG = that might be responsible for the 97.86 % speed increase over HOG 
 """

@@ -88,6 +88,16 @@ for i, filename in enumerate(os.listdir(originalDir)):
         "descriptors": components
     })
 
+results = []
+"""
+format
+{
+    "outputFilename"  - path of the SAVED file
+    "imageFilename"  - path of the ORIGINAL file (where the match was found)
+    "sX", "sY", "eX", "eY"  - coords of the rectangle
+}
+"""
+
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
     partPath = os.path.abspath(f"{partsDir}/{filename}")
@@ -136,15 +146,24 @@ for i, filename in enumerate(os.listdir(partsDir)):
 
     diagnostics["times"]["partProcess"].append(timer() - partProcessTime)
 
-    print(f"Result for {partPath} found in", best)
-    resultImage = cv.imread(best["filename"])
-    resultImage = cv.rectangle(resultImage,
-                               pt1=(best["sX"], best["sY"]),
-                               pt2=(best["eX"], best["eY"]),
-                               color=(0, 0, 255))
-    cv.imwrite(os.path.abspath(f"{outputDir}/{filename}"), resultImage)
+    results.append({
+        "outputFilename": os.path.abspath(f"{outputDir}/{filename}"),
+        "imageFilename": best["filename"],
+        "sX": best["sX"],
+        "sY": best["sY"],
+        "eX": best["eX"],
+        "eY": best["eY"]
+    })
 
 totalTime = np.round((timer() - totalTime) * 1000, 3)
+
+for result in results:
+    resultImage = cv.imread(result["imageFilename"])
+    resultImage = cv.rectangle(resultImage,
+                               pt1=(result["sX"], result["sY"]),
+                               pt2=(result["eX"], result["eY"]),
+                               color=(0, 0, 255))
+    cv.imwrite(result["outputFilename"], resultImage)
 
 class AverageType(Enum):
     TIME = 1
@@ -188,20 +207,20 @@ Average image component size: {average["imageComponentSize"]}
 """
 Results:
 
-Total time [ms]: 1220.385
+Total time [ms]: 1155.361
 Average times [ms]:
-    - Component computing for a part: 0.662
-    - Component computing for an image: 7.325
+    - Component computing for a part: 0.768
+    - Component computing for an image: 7.646
     - Calculating distance between components: 0.013
-    - Processing all subsets (average 727.67 subsets) for a single image: 11.701
-    - Processing entire part: 118.16
+    - Processing all subsets (average 727.67 subsets) for a single image: 11.629
+    - Processing entire part: 117.62
 
 Average part component size: 128.11
 Average image component size: 1444.0  
 
 Deductions:
     - comparing the results to HOG, since both of them sort of consider the picture as basically one giant keypoint:
-        - FT is much faster, about 7.7x faster for processing entire part
+        - FT is much faster, about 87.49 % faster for processing entire part
         - this is most likely to drastically smaller descriptor size and subset count 
             - nearly 113x smaller part descriptor size 
             - about 136x smaller image descriptor size

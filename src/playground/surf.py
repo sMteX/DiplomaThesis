@@ -53,6 +53,22 @@ for i, filename in enumerate(os.listdir(originalDir)):
         "descriptors": descriptors
     })
 
+results = []
+"""
+format
+{
+    "outputFilename"  - path of the SAVED file
+    "imageFilename"  - path of the ORIGINAL file (where the match was found)
+    "sX", "sY", "eX", "eY"  - coords of the rectangle
+    
+    Additional data for drawing keypoint matches
+    
+    "partFilename"  - path of the PART file
+    "partKeypoints", "imageKeypoints"   - keypoints of the part and image
+    "topMatches"    - selected N best matches for keypoints
+}
+"""
+
 for i, filename in enumerate(os.listdir(partsDir)):
     partProcessTime = timer()
     filePath = os.path.abspath(f"{partsDir}/{filename}")
@@ -100,16 +116,38 @@ for i, filename in enumerate(os.listdir(partsDir)):
         bestKeypointImage.pt[1] - bestKeypointPart.pt[1]).astype(int)
     endX, endY = startX + part.shape[1], startY + part.shape[0]
 
-    resultImage = cv.imread(bestResult["image"]["filename"])
-    resultImage = cv.rectangle(resultImage, pt1=(startX, startY), pt2=(endX, endY), color=(0, 255, 0))
-    if DRAW_MATCHES:
-        resultImage = cv.drawMatches(partColor, partKeypoints, resultImage, bestResult["image"]["keypoints"],
-                                     bestResult["topMatches"], resultImage,
-                                     flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-    print(f'Match for {filePath} found in {bestResult["image"]["filename"]}')
-    cv.imwrite(os.path.abspath(f'{outputDir}/{"kp_" if DRAW_MATCHES else ""}{filename}'), resultImage)
+    results.append({
+        "outputFilename": os.path.abspath(f"{outputDir}/{'kp_' if DRAW_MATCHES else ''}{filename}"),
+        "imageFilename": bestResult["image"]["filename"],
+        "sX": startX,
+        "sY": startY,
+        "eX": endX,
+        "eY": endY,
+        # for DRAW_MATCHES=True
+        "partFilename": filePath,
+        "partKeypoints": partKeypoints,
+        "imageKeypoints": bestResult["image"]["keypoints"],
+        "topMatches": bestResult["topMatches"]
+    })
 
 totalTime = np.round((timer() - totalTime) * 1000, 3)
+
+for result in results:
+    resultImage = cv.imread(result["imageFilename"])
+    resultImage = cv.rectangle(img=resultImage,
+                               pt1=(result["sX"], result["sY"]),
+                               pt2=(result["eX"], result["eY"]),
+                               color=(0, 255, 0))
+    if DRAW_MATCHES:
+        resultImage = cv.drawMatches(img1=cv.imread(result["partFilename"]),
+                                     keypoints1=result["partKeypoints"],
+                                     img2=resultImage,
+                                     keypoints2=result["imageKeypoints"],
+                                     matches1to2=result["topMatches"],
+                                     outImg=resultImage,
+                                     flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
+    cv.imwrite(result["outputFilename"], resultImage)
+
 
 average = {
     "partKeypoints": np.round(np.average(np.asarray(diagnostics["computeTimes"]["partKeypoints"])) * 1000, 3),
@@ -141,14 +179,14 @@ Average image descriptor size: {average["imageDescriptorSizes"]}
 """
 Results:
 
-Total time [ms]: 584.875
+Total time [ms]: 497.142
 Average times [ms]:
-    - Keypoint and descriptor computing for a part: 4.59
-    - Keypoint and descriptor computing for an image: 147.789
-    - Matching an individual image with a part: 1.046
-    - Sorting individual matches: 0.049
-    - Matching all images to a part: 12.119
-    - Processing entire part: 18.276
+    - Keypoint and descriptor computing for a part: 1.505
+    - Keypoint and descriptor computing for an image: 41.594
+    - Matching an individual image with a part: 0.398
+    - Sorting individual matches: 0.015
+    - Matching all images to a part: 4.515
+    - Processing entire part: 6.614
 
 Average part descriptor size: 2936.89
 Average image descriptor size: 39628.8
@@ -156,7 +194,7 @@ Average image descriptor size: 39628.8
 Deductions:
     - almost identical implementation as SIFT
     - similar times for computing the keypoints and descriptors
-    - matching is 60,91 % faster on average, processing entire part 60,71 % faster
+    - matching is 68.46 % faster, processing entire part 67.26 % faster
     - this is most likely to much smaller descriptor size (and count)
     - SIFT descriptor (per keypoint) is 128 long, SURF uses size 64 descriptors
 """
