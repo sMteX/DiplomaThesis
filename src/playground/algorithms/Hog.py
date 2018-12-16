@@ -5,20 +5,6 @@ from src.playground.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
 class Hog(BaseAlgorithm):
-    class Diagnostics:
-        times = {
-            "partDescriptor": [],
-            "imageDescriptor": [],
-            "distanceComputing": [],
-            "imageProcess": [],
-            "partProcess": [],
-        }
-        counts = {
-            "partDescriptorSize": [],
-            "imageDescriptorSize": [],
-            "subsets": [],
-        }
-
     # parameters for HOGDescriptor
     cellSide = 4
     cellSize = (cellSide, cellSide)  # w x h
@@ -36,10 +22,10 @@ class Hog(BaseAlgorithm):
 
     imageData = []
     results = []
-    diagnostics = Diagnostics()
 
     def __init__(self, partType, parts, imageType, images, outputDir, cellSide=None):
         super().__init__(partType, parts, imageType, images, outputDir)
+        self.diagnostics.counts["subsets"] = []
         if cellSide is not None:
             self.cellSide = cellSide
             self.cellSize = (self.cellSide, self.cellSide)  # w x h
@@ -134,9 +120,7 @@ class Hog(BaseAlgorithm):
                     subsets = subsets + 1
                     subset = image["descriptors"][startX:endX, startY:endY, :, :]
 
-                    t = timer()
                     distance = np.linalg.norm(subset - partDescriptor)  # should calculate the euclidean distance
-                    self.diagnostics.times["distanceComputing"].append(timer() - t)
 
                     if distance < best["distance"]:
                         best["distance"] = distance
@@ -174,7 +158,6 @@ class Hog(BaseAlgorithm):
         average = {
             "partDescriptor": self.avg(self.diagnostics.times["partDescriptor"]),
             "imageDescriptor": self.avg(self.diagnostics.times["imageDescriptor"]),
-            "distanceComputing": self.avg(self.diagnostics.times["distanceComputing"]),
             "imageProcess": self.avg(self.diagnostics.times["imageProcess"]),
             "partProcess": self.avg(self.diagnostics.times["partProcess"]),
 
@@ -183,11 +166,10 @@ class Hog(BaseAlgorithm):
             "subsets": self.avg(self.diagnostics.counts["subsets"], self.AverageType.COUNT),
         }
 
-        print(f"Total time [ms]: {self.totalTime}")
+        print(f"Total time [ms]: {self.diagnostics.totalTime}")
         print("Average times [ms]:")
         print(f"    - Descriptor computing for a part: {average['partDescriptor']}")
         print(f"    - Descriptor computing for a image: {average['imageDescriptor']}")
-        print(f"    - Calculating distance between descriptors: {average['distanceComputing']}")
         print(f"    - Processing all subsets (average {average['subsets']} subsets) for a single image: {average['imageProcess']}")
         print(f"    - Processing entire part: {average['partProcess']}\n")
         print(f"Average part descriptor size: {average['partDescriptorSize']}")

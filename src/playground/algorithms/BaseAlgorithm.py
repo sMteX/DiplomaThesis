@@ -8,6 +8,18 @@ class InputType(Enum):
     DIRECTORY = 2
 
 class BaseAlgorithm:
+    class Diagnostics:
+        times = {
+            "partDescriptor": [],
+            "imageDescriptor": [],
+            "imageProcess": [],
+            "partProcess": [],
+        }
+        counts = {
+            "partDescriptorSize": [],
+            "imageDescriptorSize": [],
+        }
+        totalTime = -1
 
     class AverageType(Enum):
         TIME = 1
@@ -16,6 +28,7 @@ class BaseAlgorithm:
     partPaths = []
     imagePaths = []
     outputDir = ""
+    diagnostics = Diagnostics()
 
     def __init__(self, partType, parts, imageType, images, outputDir):
         """
@@ -65,13 +78,11 @@ class BaseAlgorithm:
     - maybe utilize a builder pattern of some sort later
     """
 
-    totalTime = -1
-
     def process(self):
-        self.totalTime = timer()
+        self.diagnostics.totalTime = timer()
         self.processImages()
         self.processParts()
-        self.totalTime = np.round((timer() - self.totalTime) * 1000, 3)
+        self.diagnostics.totalTime = np.round((timer() - self.diagnostics.totalTime) * 1000, 3)
 
         self.writeResults()
         self.printResults()
