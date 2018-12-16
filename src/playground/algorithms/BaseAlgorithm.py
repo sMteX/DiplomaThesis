@@ -28,7 +28,11 @@ class BaseAlgorithm:
     partPaths = []
     imagePaths = []
     outputDir = ""
+
     diagnostics = Diagnostics()
+
+    imageData = []
+    results = []
 
     def __init__(self, partType, parts, imageType, images, outputDir):
         """
