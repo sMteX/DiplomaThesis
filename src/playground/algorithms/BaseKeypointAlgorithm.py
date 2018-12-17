@@ -38,9 +38,9 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             partSize = self.getSizeFromShape(img.shape)
 
             partKeypoints, partDescriptors, time = self.calculateDescriptor(img)
-            ok = self.checkValidDetectOutput(partKeypoints, partDescriptors)
-            if not ok[0]:
-                print(f"ERROR computing keypoints or descriptors for {part.filePath} ({ok[1]}), skipping...")
+            ok, error = self.checkValidDetectOutput(partKeypoints, partDescriptors)
+            if not ok:
+                print(f"ERROR computing keypoints or descriptors for {part.filePath} ({error}), skipping...")
                 continue
 
             self.diagnostics.times.partDescriptor.append(time)

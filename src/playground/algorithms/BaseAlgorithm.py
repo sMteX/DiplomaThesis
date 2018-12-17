@@ -21,7 +21,7 @@ def fromDirectory(path) -> List[InputImage]:
     absolute = os.path.abspath(path)
     result = []
     for fileName in os.listdir(absolute):
-        filePath = f"{absolute}/{fileName}"
+        filePath = os.path.abspath(f"{absolute}/{fileName}")
         result.append(InputImage(cv.imread(filePath), filePath))
     return result
 
