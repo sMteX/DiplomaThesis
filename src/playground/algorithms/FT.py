@@ -8,8 +8,8 @@ class FT(BaseHogFT):
     kernelRadius: int
     kernel: np.ndarray
 
-    def __init__(self, partType, parts, imageType, images, outputDir, kernelRadius=8):
-        super().__init__(partType, parts, imageType, images, outputDir)
+    def __init__(self, parts, images, kernelRadius=8):
+        super().__init__(parts, images)
         self.kernelRadius = kernelRadius
         self.kernel = ft.createKernel(ft.LINEAR, self.kernelRadius, chn=1)
 

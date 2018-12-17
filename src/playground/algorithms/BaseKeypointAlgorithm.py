@@ -10,41 +10,41 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
 
     bf: cv.BFMatcher      # brute force matcher, its parameter "normType" varies with algorithms (L2 for SIFT/SURF, HAMMING for ORB, BRIEF, FREAK)
 
-    def __init__(self, partType, parts, imageType, images, outputDir, topMatches=20, drawMatches=True):
-        super().__init__(partType, parts, imageType, images, outputDir)
+    def __init__(self, parts, images, topMatches=20, drawMatches=True):
+        super().__init__(parts, images)
         self.topMatches = topMatches
         self.drawMatches = drawMatches
 
     def processImages(self):
-        for filePath in self.imagePaths:
-            img = cv.imread(filePath, 0)
+        for image in self.images:
+            img = cv.cvtColor(image.colorImage, cv.COLOR_BGR2GRAY)
             keypoints, descriptors, time = self.calculateDescriptor(img)
             ok, error = self.checkValidDetectOutput(keypoints, descriptors)
             if not ok:
-                print(f"ERROR computing keypoints or descriptors for {filePath} ({error}), skipping...")
+                print(f"ERROR computing keypoints or descriptors for {image.filePath} ({error}), skipping...")
                 continue
-            self.diagnostics.times["imageDescriptor"].append(time)
-            self.diagnostics.counts["imageDescriptorSize"].append(descriptors.size)
+            self.diagnostics.times.imageDescriptor.append(time)
+            self.diagnostics.counts.imageDescriptorSize.append(descriptors.size)
             self.imageData.append({
-                "filePath": filePath,
+                "colorImage": image.colorImage,
                 "keypoints": keypoints,
                 "descriptors": descriptors
             })
 
     def processParts(self):
-        for filePath in self.partPaths:
+        for part in self.parts:
             partProcessTime = timer()
-            img = cv.imread(filePath, 0)
+            img = cv.cvtColor(part.colorImage, cv.COLOR_BGR2GRAY)
             partSize = self.getSizeFromShape(img.shape)
 
             partKeypoints, partDescriptors, time = self.calculateDescriptor(img)
             ok = self.checkValidDetectOutput(partKeypoints, partDescriptors)
             if not ok[0]:
-                print(f"ERROR computing keypoints or descriptors for {filePath} ({ok[1]}), skipping...")
+                print(f"ERROR computing keypoints or descriptors for {part.filePath} ({ok[1]}), skipping...")
                 continue
 
-            self.diagnostics.times["partDescriptor"].append(time)
-            self.diagnostics.counts["partDescriptorSize"].append(partDescriptors.size)
+            self.diagnostics.times.partDescriptor.append(time)
+            self.diagnostics.counts.partDescriptorSize.append(partDescriptors.size)
 
             best = {
                 "image": None,
@@ -66,11 +66,11 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
                     best["distance"] = totalDistance
                     best["topMatches"] = matches
 
-                self.diagnostics.times["individualImageMatching"].append(timer() - imageProcessTime)
+                self.diagnostics.times.individualImageMatching.append(timer() - imageProcessTime)
 
             end = timer()
-            self.diagnostics.times["allImagesMatching"].append(end - allImageProcessTime)
-            self.diagnostics.times["partProcess"].append(end - partProcessTime)
+            self.diagnostics.times.allImagesMatching.append(end - allImageProcessTime)
+            self.diagnostics.times.partProcess.append(end - partProcessTime)
 
             # processing result
             bestMatch = best["topMatches"][0]
@@ -80,52 +80,47 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             startY = np.round(bestKeypointImage.pt[1] - bestKeypointPart.pt[1]).astype(int)
             endX, endY = startX + partSize[0], startY + partSize[1]
 
-            self.results.append({
-                "outputFilePath": os.path.abspath(f"{self.outputDir}/{'kp_' if self.drawMatches else ''}{os.path.basename(filePath)}"),
-                "imageFilePath": best["image"]["filePath"],
-                "sX": startX,
-                "sY": startY,
-                "eX": endX,
-                "eY": endY,
-                # for DRAW_MATCHES=True
-                "partFilePath": filePath,
-                "partKeypoints": partKeypoints,
-                "imageKeypoints": best["image"]["keypoints"],
-                "topMatches": best["topMatches"]
-            })
+            self.results.append(self.MatchingResult(part=part.colorImage,
+                                                    image=best["image"]["colorImage"],
+                                                    start=(startX, startY),
+                                                    end=(endX, endY),
+                                                    partKeypoints=partKeypoints,
+                                                    imageKeypoints=best["image"]["keypoints"],
+                                                    topMatches=best["topMatches"]))
 
     # implement in child algorithms
 
     def calculateDescriptor(self, img) -> object:
         pass
 
-    def writeResults(self):
-        for result in self.results:
-            resultImage = cv.imread(result["imageFilePath"])
+    def writeResults(self, directory):
+        path = os.path.abspath(directory)
+        for i, result in enumerate(self.results):
+            resultImage = result.image.copy()
             resultImage = cv.rectangle(img=resultImage,
-                                       pt1=(result["sX"], result["sY"]),
-                                       pt2=(result["eX"], result["eY"]),
+                                       pt1=result.start,
+                                       pt2=result.end,
                                        color=(0, 0, 255))
             if self.drawMatches:
-                resultImage = cv.drawMatches(img1=cv.imread(result["partFilePath"]),
-                                             keypoints1=result["partKeypoints"],
+                resultImage = cv.drawMatches(img1=result.part.copy(),
+                                             keypoints1=result.partKeypoints,
                                              img2=resultImage,
-                                             keypoints2=result["imageKeypoints"],
-                                             matches1to2=result["topMatches"],
+                                             keypoints2=result.imageKeypoints,
+                                             matches1to2=result.topMatches,
                                              outImg=resultImage,
                                              flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-            cv.imwrite(result["outputFilePath"], resultImage)
+            cv.imwrite(f"{path}/{'kp_' if self.drawMatches else ''}{i}.jpg", resultImage)
 
     def printResults(self):
         average = {
-            "partDescriptor": self.avg(self.diagnostics.times["partDescriptor"]),
-            "imageDescriptor": self.avg(self.diagnostics.times["imageDescriptor"]),
-            "individualImageMatching": self.avg(self.diagnostics.times["individualImageMatching"]),
-            "allImagesMatching": self.avg(self.diagnostics.times["allImagesMatching"]),
-            "partProcess": self.avg(self.diagnostics.times["partProcess"]),
+            "partDescriptor": self.avg(self.diagnostics.times.partDescriptor),
+            "imageDescriptor": self.avg(self.diagnostics.times.imageDescriptor),
+            "individualImageMatching": self.avg(self.diagnostics.times.individualImageMatching),
+            "allImagesMatching": self.avg(self.diagnostics.times.allImagesMatching),
+            "partProcess": self.avg(self.diagnostics.times.partProcess),
 
-            "partDescriptorSize": self.avg(self.diagnostics.counts["partDescriptorSize"], self.AverageType.COUNT),
-            "imageDescriptorSize": self.avg(self.diagnostics.counts["imageDescriptorSize"], self.AverageType.COUNT),
+            "partDescriptorSize": self.avg(self.diagnostics.counts.partDescriptorSize, self.AverageType.COUNT),
+            "imageDescriptorSize": self.avg(self.diagnostics.counts.imageDescriptorSize, self.AverageType.COUNT),
         }
 
         print(f"Total time [ms]: {self.diagnostics.totalTime}")

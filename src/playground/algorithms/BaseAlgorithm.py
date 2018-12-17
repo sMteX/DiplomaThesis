@@ -1,70 +1,106 @@
+from typing import List
+
+import cv2 as cv
 import os
 import numpy as np
 from enum import Enum
 from timeit import default_timer as timer
 
-class InputType(Enum):
-    PATH_ARRAY = 1,
-    DIRECTORY = 2
+class InputImage:
+    filePath: str
+    colorImage: np.ndarray
+
+    def __init__(self, image, path=""):
+        self.colorImage = image
+        if path == "":
+            self.filePath = "<in memory image>"
+        else:
+            self.filePath = path
+
+def fromDirectory(path) -> List[InputImage]:
+    absolute = os.path.abspath(path)
+    result = []
+    for fileName in os.listdir(absolute):
+        filePath = f"{absolute}/{fileName}"
+        result.append(InputImage(cv.imread(filePath), filePath))
+    return result
+
+def fromPaths(paths) -> List[InputImage]:
+    result = []
+    for path in os.listdir(paths):
+        absolute = os.path.abspath(path)
+        if not os.path.isfile(absolute):
+            continue
+        result.append(InputImage(cv.imread(absolute), absolute))
+    return result
+
+def fromImages(*images) -> List[InputImage]:
+    result = []
+    for image in images:
+        result.append(InputImage(image))
+    return result
 
 class BaseAlgorithm:
     class Diagnostics:
-        times = {
-            "partDescriptor": [],
-            "imageDescriptor": [],
-            "individualImageMatching": [],
-            "allImagesMatching": [],
-            "partProcess": [],
-        }
-        counts = {
-            "partDescriptorSize": [],
-            "imageDescriptorSize": [],
-        }
+        class DiagnosticTimes:
+            partDescriptor = []
+            imageDescriptor = []
+            individualImageMatching = []
+            allImagesMatching = []
+            partProcess = []
+
+        class DiagnosticCounts:
+            partDescriptorSize = []
+            imageDescriptorSize = []
+            subsets = []
+
+        times = DiagnosticTimes()
+        counts = DiagnosticCounts()
         totalTime = -1
 
     class AverageType(Enum):
         TIME = 1
         COUNT = 2
 
-    partPaths = []
-    imagePaths = []
-    outputDir = ""
+    class MatchingResult:
+        part: np.ndarray = None
+        image: np.ndarray = None
+        # rectangle for where the match was found
+        start: (int, int)
+        end: (int, int)
+        # following variables are used in keypoint-based algorithms
+        partKeypoints: List[cv.KeyPoint]
+        imageKeypoints: List[cv.KeyPoint]
+        topMatches: List[cv.DMatch]
+
+        def __init__(self, part, image, start, end, partKeypoints=None, imageKeypoints=None, topMatches=None):
+            self.part = part
+            self.image = image
+            self.start = start
+            self.end = end
+            self.partKeypoints = partKeypoints
+            self.imageKeypoints = imageKeypoints
+            self.topMatches = topMatches
+
+
+    parts: List[InputImage] = []
+    images: List[InputImage] = []
 
     diagnostics = Diagnostics()
 
     imageData = []
-    results = []
+    results: List[MatchingResult] = []
 
-    def __init__(self, partType, parts, imageType, images, outputDir):
+    def __init__(self, parts, images):
         """
         Initializes the base matching algorithm
 
-        :param partType: Type of parts input (InputType enum)
-        :param parts: Parts - could be either array of paths (absolute or relative) or directory
-        :param imageType: Type of image input (InputType enum)
-        :param images: Images - could be either array of paths or directory
-        :param outputDir: Path to output directory (it must exist prior to calling process())
+        :type parts: List[InputImage]
+        :param parts: Images that are being matched ("parts")
+        :param images: Image database to match into
         """
-
-        # sanitize the paths to make sure they're absolute to avoid problems
-        if partType == InputType.DIRECTORY:
-            absolutePath = os.path.abspath(parts)
-            for file in os.listdir(absolutePath):
-                self.partPaths.append(os.path.abspath(f"{absolutePath}/{file}"))
-        else:
-            for path in parts:
-                self.partPaths.append(os.path.abspath(path))
-
-        if imageType == InputType.DIRECTORY:
-            absolutePath = os.path.abspath(images)
-            for file in os.listdir(absolutePath):
-                self.imagePaths.append(os.path.abspath(f"{absolutePath}/{file}"))
-        else:
-            for path in parts:
-                self.imagePaths.append(os.path.abspath(path))
-
-        self.outputDir = os.path.abspath(outputDir)
-
+        self.parts = parts
+        self.images = images
     """
     Overall structure of the algorithm stays the same
 
@@ -89,14 +125,12 @@ class BaseAlgorithm:
     - maybe utilize a builder pattern of some sort later
     """
 
-    def process(self):
+    def process(self) -> List[MatchingResult]:
         self.diagnostics.totalTime = timer()
         self.processImages()
         self.processParts()
         self.diagnostics.totalTime = np.round((timer() - self.diagnostics.totalTime) * 1000, 3)
-
-        self.writeResults()
-        self.printResults()
+        return self.results
 
     # implement in child algorithms
 
@@ -106,7 +140,7 @@ class BaseAlgorithm:
     def processParts(self):
         pass
 
-    def writeResults(self):
+    def writeResults(self, directory):
         pass
 
     def printResults(self):

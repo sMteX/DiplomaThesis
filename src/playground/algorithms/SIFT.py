@@ -5,8 +5,8 @@ from timeit import default_timer as timer
 class SIFT(BaseKeypointAlgorithm):
     sift = cv.xfeatures2d.SIFT_create()
 
-    def __init__(self, partType, parts, imageType, images, outputDir, topMatches=20, drawMatches=True):
-        super().__init__(partType, parts, imageType, images, outputDir, topMatches, drawMatches)
+    def __init__(self, parts, images, topMatches=20, drawMatches=True):
+        super().__init__(parts, images, topMatches, drawMatches)
         self.bf = cv.BFMatcher(cv.NORM_L2, crossCheck=True)
 
     def calculateDescriptor(self, img):

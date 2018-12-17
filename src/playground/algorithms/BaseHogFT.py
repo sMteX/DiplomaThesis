@@ -5,34 +5,33 @@ from src.playground.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
 class BaseHogFT(BaseAlgorithm):
-    def __init__(self, partType, parts, imageType, images, outputDir):
-        super().__init__(partType, parts, imageType, images, outputDir)
-        self.diagnostics.counts["subsets"] = []
+    def __init__(self, parts, images):
+        super().__init__(parts, images)
 
     def processImages(self):
-        for filePath in self.imagePaths:
-            img = cv.imread(filePath, 0)
+        for image in self.images:
+            img = cv.cvtColor(image.colorImage, cv.COLOR_BGR2GRAY)
             descriptor, time = self.calculateDescriptor(img)
-            self.diagnostics.times["imageDescriptor"].append(time)
-            self.diagnostics.counts["imageDescriptorSize"].append(descriptor.size)
+            self.diagnostics.times.imageDescriptor.append(time)
+            self.diagnostics.counts.imageDescriptorSize.append(descriptor.size)
             self.imageData.append({
-                "filePath": filePath,
+                "colorImage": image.colorImage,
                 "descriptor": descriptor
             })
 
     def processParts(self):
-        for filePath in self.partPaths:
+        for part in self.parts:
             partProcessTime = timer()
-            img = cv.imread(filePath, 0)
+            img = cv.cvtColor(part.colorImage, cv.COLOR_BGR2GRAY)
             partSize = self.getSizeFromShape(img.shape)
 
             partDescriptor, time = self.calculateDescriptor(img)
-            self.diagnostics.times["partDescriptor"].append(time)
-            self.diagnostics.counts["partDescriptorSize"].append(partDescriptor.size)
+            self.diagnostics.times.partDescriptor.append(time)
+            self.diagnostics.counts.partDescriptorSize.append(partDescriptor.size)
 
             best = {
                 "distance": float("inf"),  # default to +infinity
-                "filePath": "",
+                "colorImage": None,
                 "sX": -1,
                 "sY": -1,
                 "eX": -1,
@@ -53,27 +52,23 @@ class BaseHogFT(BaseAlgorithm):
                     if distance < best["distance"]:
                         scaleX, scaleY = self.getResultPointScale()
                         best["distance"] = distance
-                        best["filePath"] = image["filePath"]
+                        best["colorImage"] = image["colorImage"]
                         best["sX"] = startX * scaleX
                         best["sY"] = startY * scaleY
                         best["eX"] = best["sX"] + partSize[0]
                         best["eY"] = best["sY"] + partSize[1]
 
-                self.diagnostics.times["individualImageMatching"].append(timer() - imageProcessTime)
-                self.diagnostics.counts["subsets"].append(subsets)
+                self.diagnostics.times.individualImageMatching.append(timer() - imageProcessTime)
+                self.diagnostics.counts.subsets.append(subsets)
 
             end = timer()
-            self.diagnostics.times["allImagesMatching"].append(end - allImageProcessTime)
-            self.diagnostics.times["partProcess"].append(end - partProcessTime)
+            self.diagnostics.times.allImagesMatching.append(end - allImageProcessTime)
+            self.diagnostics.times.partProcess.append(end - partProcessTime)
 
-            self.results.append({
-                "outputFilePath": os.path.abspath(f"{self.outputDir}/{os.path.basename(filePath)}"),
-                "imageFilePath": best["filePath"],
-                "sX": best["sX"],
-                "sY": best["sY"],
-                "eX": best["eX"],
-                "eY": best["eY"]
-            })
+            self.results.append(self.MatchingResult(part=part.colorImage,
+                                                    image=best["colorImage"],
+                                                    start=(best["sX"], best["sY"]),
+                                                    end=(best["eX"], best["eY"])))
 
     # implement in child algorithms
 
@@ -89,26 +84,27 @@ class BaseHogFT(BaseAlgorithm):
     def getResultPointScale(self) -> object:
         pass
 
-    def writeResults(self):
-        for result in self.results:
-            resultImage = cv.imread(result["imageFilePath"])
+    def writeResults(self, directory):
+        path = os.path.abspath(directory)
+        for i, result in enumerate(self.results):
+            resultImage = result.image.copy()
             resultImage = cv.rectangle(resultImage,
-                                       pt1=(result["sX"], result["sY"]),
-                                       pt2=(result["eX"], result["eY"]),
+                                       pt1=result.start,
+                                       pt2=result.end,
                                        color=(0, 0, 255))
-            cv.imwrite(result["outputFilePath"], resultImage)
+            cv.imwrite(f"{path}/{i}.jpg", resultImage)
 
     def printResults(self):
         average = {
-            "partDescriptor": self.avg(self.diagnostics.times["partDescriptor"]),
-            "imageDescriptor": self.avg(self.diagnostics.times["imageDescriptor"]),
-            "individualImageMatching": self.avg(self.diagnostics.times["individualImageMatching"]),
-            "allImagesMatching": self.avg(self.diagnostics.times["allImagesMatching"]),
-            "partProcess": self.avg(self.diagnostics.times["partProcess"]),
+            "partDescriptor": self.avg(self.diagnostics.times.partDescriptor),
+            "imageDescriptor": self.avg(self.diagnostics.times.imageDescriptor),
+            "individualImageMatching": self.avg(self.diagnostics.times.individualImageMatching),
+            "allImagesMatching": self.avg(self.diagnostics.times.allImagesMatching),
+            "partProcess": self.avg(self.diagnostics.times.partProcess),
 
-            "partDescriptorSize": self.avg(self.diagnostics.counts["partDescriptorSize"], self.AverageType.COUNT),
-            "imageDescriptorSize": self.avg(self.diagnostics.counts["imageDescriptorSize"], self.AverageType.COUNT),
-            "subsets": self.avg(self.diagnostics.counts["subsets"], self.AverageType.COUNT),
+            "partDescriptorSize": self.avg(self.diagnostics.counts.partDescriptorSize, self.AverageType.COUNT),
+            "imageDescriptorSize": self.avg(self.diagnostics.counts.imageDescriptorSize, self.AverageType.COUNT),
+            "subsets": self.avg(self.diagnostics.counts.subsets, self.AverageType.COUNT),
         }
 
         print(f"Total time [ms]: {self.diagnostics.totalTime}")

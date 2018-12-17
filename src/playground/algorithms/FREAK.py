@@ -6,8 +6,8 @@ class FREAK(BaseKeypointAlgorithm):
     fast = cv.FastFeatureDetector_create()
     freak = cv.xfeatures2d.FREAK_create()
 
-    def __init__(self, partType, parts, imageType, images, outputDir, topMatches=20, drawMatches=True):
-        super().__init__(partType, parts, imageType, images, outputDir, topMatches, drawMatches)
+    def __init__(self, parts, images, topMatches=20, drawMatches=True):
+        super().__init__(parts, images, topMatches, drawMatches)
         self.bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
 
     def calculateDescriptor(self, img):

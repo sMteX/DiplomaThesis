@@ -19,8 +19,8 @@ class HOG(BaseHogFT):
     nLevels = 64
     signedGradients = True
 
-    def __init__(self, partType, parts, imageType, images, outputDir, cellSide=4):
-        super().__init__(partType, parts, imageType, images, outputDir)
+    def __init__(self, parts, images, cellSide=4):
+        super().__init__(parts, images)
         self.cellSide = cellSide
         self.cellSize = (self.cellSide, self.cellSide)  # w x h
         self.blockSize = (self.cellSide * 2, self.cellSide * 2)  # w x h
