@@ -16,31 +16,31 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
         self.drawMatches = drawMatches
 
     def processImages(self):
-        for filename in self.imagePaths:
-            img = cv.imread(filename, 0)
+        for filePath in self.imagePaths:
+            img = cv.imread(filePath, 0)
             keypoints, descriptors, time = self.calculateDescriptor(img)
             ok, error = self.checkValidDetectOutput(keypoints, descriptors)
             if not ok:
-                print(f"ERROR computing keypoints or descriptors for {filename} ({error}), skipping...")
+                print(f"ERROR computing keypoints or descriptors for {filePath} ({error}), skipping...")
                 continue
             self.diagnostics.times["imageDescriptor"].append(time)
             self.diagnostics.counts["imageDescriptorSize"].append(descriptors.size)
             self.imageData.append({
-                "filename": filename,
+                "filePath": filePath,
                 "keypoints": keypoints,
                 "descriptors": descriptors
             })
 
     def processParts(self):
-        for i, filename in enumerate(self.partPaths):
+        for filePath in self.partPaths:
             partProcessTime = timer()
-            img = cv.imread(filename, 0)
+            img = cv.imread(filePath, 0)
             partSize = self.getSizeFromShape(img.shape)
 
             partKeypoints, partDescriptors, time = self.calculateDescriptor(img)
             ok = self.checkValidDetectOutput(partKeypoints, partDescriptors)
             if not ok[0]:
-                print(f"ERROR computing keypoints or descriptors for {filename} ({ok[1]}), skipping...")
+                print(f"ERROR computing keypoints or descriptors for {filePath} ({ok[1]}), skipping...")
                 continue
 
             self.diagnostics.times["partDescriptor"].append(time)
@@ -81,14 +81,14 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             endX, endY = startX + partSize[0], startY + partSize[1]
 
             self.results.append({
-                "outputFilename": os.path.abspath(f"{self.outputDir}/{'kp_' if self.drawMatches else ''}{i}.jpg"),
-                "imageFilename": best["image"]["filename"],
+                "outputFilePath": os.path.abspath(f"{self.outputDir}/{'kp_' if self.drawMatches else ''}{os.path.basename(filePath)}"),
+                "imageFilePath": best["image"]["filePath"],
                 "sX": startX,
                 "sY": startY,
                 "eX": endX,
                 "eY": endY,
                 # for DRAW_MATCHES=True
-                "partFilename": filename,
+                "partFilePath": filePath,
                 "partKeypoints": partKeypoints,
                 "imageKeypoints": best["image"]["keypoints"],
                 "topMatches": best["topMatches"]
@@ -101,20 +101,20 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
 
     def writeResults(self):
         for result in self.results:
-            resultImage = cv.imread(result["imageFilename"])
+            resultImage = cv.imread(result["imageFilePath"])
             resultImage = cv.rectangle(img=resultImage,
                                        pt1=(result["sX"], result["sY"]),
                                        pt2=(result["eX"], result["eY"]),
                                        color=(0, 0, 255))
             if self.drawMatches:
-                resultImage = cv.drawMatches(img1=cv.imread(result["partFilename"]),
+                resultImage = cv.drawMatches(img1=cv.imread(result["partFilePath"]),
                                              keypoints1=result["partKeypoints"],
                                              img2=resultImage,
                                              keypoints2=result["imageKeypoints"],
                                              matches1to2=result["topMatches"],
                                              outImg=resultImage,
                                              flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-            cv.imwrite(result["outputFilename"], resultImage)
+            cv.imwrite(result["outputFilePath"], resultImage)
 
     def printResults(self):
         average = {

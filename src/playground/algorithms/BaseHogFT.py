@@ -10,20 +10,20 @@ class BaseHogFT(BaseAlgorithm):
         self.diagnostics.counts["subsets"] = []
 
     def processImages(self):
-        for filename in self.imagePaths:
-            img = cv.imread(filename, 0)
+        for filePath in self.imagePaths:
+            img = cv.imread(filePath, 0)
             descriptor, time = self.calculateDescriptor(img)
             self.diagnostics.times["imageDescriptor"].append(time)
             self.diagnostics.counts["imageDescriptorSize"].append(descriptor.size)
             self.imageData.append({
-                "filename": filename,
+                "filePath": filePath,
                 "descriptor": descriptor
             })
 
     def processParts(self):
-        for i, filename in enumerate(self.partPaths):
+        for filePath in self.partPaths:
             partProcessTime = timer()
-            img = cv.imread(filename, 0)
+            img = cv.imread(filePath, 0)
             partSize = self.getSizeFromShape(img.shape)
 
             partDescriptor, time = self.calculateDescriptor(img)
@@ -32,7 +32,7 @@ class BaseHogFT(BaseAlgorithm):
 
             best = {
                 "distance": float("inf"),  # default to +infinity
-                "filename": "",
+                "filePath": "",
                 "sX": -1,
                 "sY": -1,
                 "eX": -1,
@@ -53,7 +53,7 @@ class BaseHogFT(BaseAlgorithm):
                     if distance < best["distance"]:
                         scaleX, scaleY = self.getResultPointScale()
                         best["distance"] = distance
-                        best["filename"] = image["filename"]
+                        best["filePath"] = image["filePath"]
                         best["sX"] = startX * scaleX
                         best["sY"] = startY * scaleY
                         best["eX"] = best["sX"] + partSize[0]
@@ -67,8 +67,8 @@ class BaseHogFT(BaseAlgorithm):
             self.diagnostics.times["partProcess"].append(end - partProcessTime)
 
             self.results.append({
-                "outputFilename": os.path.abspath(f"{self.outputDir}/{i}.jpg"),
-                "imageFilename": best["filename"],
+                "outputFilePath": os.path.abspath(f"{self.outputDir}/{os.path.basename(filePath)}"),
+                "imageFilePath": best["filePath"],
                 "sX": best["sX"],
                 "sY": best["sY"],
                 "eX": best["eX"],
@@ -91,12 +91,12 @@ class BaseHogFT(BaseAlgorithm):
 
     def writeResults(self):
         for result in self.results:
-            resultImage = cv.imread(result["imageFilename"])
+            resultImage = cv.imread(result["imageFilePath"])
             resultImage = cv.rectangle(resultImage,
                                        pt1=(result["sX"], result["sY"]),
                                        pt2=(result["eX"], result["eY"]),
                                        color=(0, 0, 255))
-            cv.imwrite(result["outputFilename"], resultImage)
+            cv.imwrite(result["outputFilePath"], resultImage)
 
     def printResults(self):
         average = {

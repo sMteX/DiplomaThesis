@@ -40,24 +40,30 @@ class BaseAlgorithm:
         Initializes the base matching algorithm
 
         :param partType: Type of parts input (InputType enum)
-        :param parts: Parts - could be either array of paths or directory
+        :param parts: Parts - could be either array of paths (absolute or relative) or directory
         :param imageType: Type of image input (InputType enum)
         :param images: Images - could be either array of paths or directory
-        :param outputDir: Path to output directory
+        :param outputDir: Path to output directory (it must exist prior to calling process())
         """
+
+        # sanitize the paths to make sure they're absolute to avoid problems
         if partType == InputType.DIRECTORY:
-            for file in os.listdir(parts):
-                self.partPaths.append(os.path.abspath(f"{parts}/{file}"))
+            absolutePath = os.path.abspath(parts)
+            for file in os.listdir(absolutePath):
+                self.partPaths.append(os.path.abspath(f"{absolutePath}/{file}"))
         else:
-            self.partPaths = list(parts)
+            for path in parts:
+                self.partPaths.append(os.path.abspath(path))
 
         if imageType == InputType.DIRECTORY:
-            for file in os.listdir(images):
-                self.imagePaths.append(os.path.abspath(f"{images}/{file}"))
+            absolutePath = os.path.abspath(images)
+            for file in os.listdir(absolutePath):
+                self.imagePaths.append(os.path.abspath(f"{absolutePath}/{file}"))
         else:
-            self.imagePaths = list(images)
+            for path in parts:
+                self.imagePaths.append(os.path.abspath(path))
 
-        self.outputDir = outputDir
+        self.outputDir = os.path.abspath(outputDir)
 
     """
     Overall structure of the algorithm stays the same
