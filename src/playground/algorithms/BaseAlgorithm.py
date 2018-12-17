@@ -12,7 +12,8 @@ class BaseAlgorithm:
         times = {
             "partDescriptor": [],
             "imageDescriptor": [],
-            "imageProcess": [],
+            "individualImageMatching": [],
+            "allImagesMatching": [],
             "partProcess": [],
         }
         counts = {

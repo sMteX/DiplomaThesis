@@ -4,12 +4,19 @@ import os
 from timeit import default_timer as timer
 
 TOP_MATCHES = 20
-DRAW_MATCHES = False
+DRAW_MATCHES = True
 
-imagesDir = "../../data/images"
+def checkValidDetectOutput(keypoints, descriptors):
+    if len(keypoints) == 0:
+        return False, "No keypoints detected"
+    elif descriptors is None or descriptors.size == 0:
+        return False, "No descriptors computed"
+    return True, ""
+
+imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/fast_freak"
+outputDir = imagesDir + "/testing/output/orb"
 
 diagnostics = {
     "computeTimes": {  # how long it takes to:
@@ -26,19 +33,8 @@ diagnostics = {
     }
 }
 
-fast = cv.FastFeatureDetector_create()
-freak = cv.xfeatures2d.FREAK_create()
+orb = cv.ORB_create()
 bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-
-def detectAndCompute(img):
-    kp = fast.detect(img, None)
-    keypoints, descriptors = freak.compute(img, kp)
-    result = (True, "")
-    if len(kp) == 0:
-        result = (False, "No keypoints detected")
-    elif descriptors is None or descriptors.size == 0:
-        result = (False, "No descriptors computed")
-    return result, keypoints, descriptors
 
 imageData = []
 """
@@ -55,7 +51,8 @@ for i, filename in enumerate(os.listdir(originalDir)):
     filePath = os.path.abspath(f"{originalDir}/{filename}")
     img = cv.imread(filePath, 0)
     imageKeypointTime = timer()
-    ok, keypoints, descriptors = detectAndCompute(img)
+    keypoints, descriptors = orb.detectAndCompute(img, None)
+    ok = checkValidDetectOutput(keypoints, descriptors)
     diagnostics["computeTimes"]["imageKeypoints"].append(timer() - imageKeypointTime)
     if not ok[0]:
         print(f"ERROR computing keypoints or descriptors for {filePath} ({ok[1]}), skipping...")
@@ -89,8 +86,9 @@ for i, filename in enumerate(os.listdir(partsDir)):
     partColor = cv.imread(filePath)
     part = cv.cvtColor(partColor, cv.COLOR_BGR2GRAY)
     partKeypointTime = timer()
-    ok, partKeypoints, partDescriptors = detectAndCompute(part)
+    partKeypoints, partDescriptors = orb.detectAndCompute(part, None)
     diagnostics["computeTimes"]["partKeypoints"].append(timer() - partKeypointTime)
+    ok = checkValidDetectOutput(partKeypoints, partDescriptors)
     if not ok[0]:
         print(f"ERROR computing keypoints or descriptors for {filePath} ({ok[1]}), skipping...")
         continue
@@ -195,24 +193,26 @@ Average image descriptor size: {average["imageDescriptorSizes"]}
 """
 Results:
 
-Total time [ms]: 509.15
+Total time [ms]: 285.035
 Average times [ms]:
-    - Keypoint and descriptor computing for a part: 1.188
-    - Keypoint and descriptor computing for an image: 21.759
-    - Matching an individual image with a part: 3.552
-    - Sorting individual matches: 0.04
-    - Matching all images to a part: 36.541
-    - Processing entire part: 38.623
+    - Keypoint and descriptor computing for a part: 0.836
+    - Keypoint and descriptor computing for an image: 21.828
+    - Matching an individual image with a part: 0.791
+    - Sorting individual matches: 0.022
+    - Matching all images to a part: 8.603
+    - Processing entire part: 10.751
 
-Average part descriptor size: 9737.14
-Average image descriptor size: 111052.8
+Average part descriptor size: 3288.0
+Average image descriptor size: 13820.8
 
 Deductions:
-    - uses FAST keypoint detector and FREAK descriptor
-    - suffers from generally the same problem with FAST - small images
-        - didn't find any descriptors in the skyscraper part and the bridge part
-        - only found 1 descriptor in the cable car (part 3)?
-    - generally slower than FAST + BRIEF for all parts, from descriptor computing to processing
-        - most likely due to more than doubled size of descriptors
-    - might be offset with better accuracy later
+    - similar results to FAST+BRIEF (which makes sense, since ORB builds on BOTH of them and improves their qualities)
+    - compared to FAST+BRIEF:
+        - slower keypoint and descriptor detection 
+        - faster matching of descriptors, most likely due to their much smaller size 
+    - ORB seems to have larger requirements for "part" size, because it didn't even find any keypoints in 5 out of 9 cases
+    - incorrectly matched the paw (parts/7.jpg) to the skyscraper image, bringing the accuracy even further down to 3/9 
+    - also mismatched some of the best considered keypoints (we take top 20, yet some were wrong)
+    
+    - so far seems very bad compared to others, maybe it performs better on larger images
 """

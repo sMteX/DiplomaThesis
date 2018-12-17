@@ -6,7 +6,7 @@ from timeit import default_timer as timer
 TOP_MATCHES = 20
 DRAW_MATCHES = True
 
-imagesDir = "../../data/images"
+imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/fast_brief"

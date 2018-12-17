@@ -5,10 +5,10 @@ from timeit import default_timer as timer
 
 class HOG(BaseHogFT):
     # parameters for HOGDescriptor
-    cellSide = 4
-    cellSize = (cellSide, cellSide)  # w x h
-    blockSize = (cellSide * 2, cellSide * 2)  # w x h
-    blockStride = cellSize
+    cellSide: int
+    cellSize: (int, int) # w x h
+    blockSize: (int, int)  # w x h
+    blockStride: (int, int)
     nBins = 9
     # other parameters
     derivAperture = 1
@@ -19,13 +19,12 @@ class HOG(BaseHogFT):
     nLevels = 64
     signedGradients = True
 
-    def __init__(self, partType, parts, imageType, images, outputDir, cellSide=None):
+    def __init__(self, partType, parts, imageType, images, outputDir, cellSide=4):
         super().__init__(partType, parts, imageType, images, outputDir)
-        if cellSide is not None:
-            self.cellSide = cellSide
-            self.cellSize = (self.cellSide, self.cellSide)  # w x h
-            self.blockSize = (self.cellSide * 2, self.cellSide * 2)  # w x h
-            self.blockStride = self.cellSize
+        self.cellSide = cellSide
+        self.cellSize = (self.cellSide, self.cellSide)  # w x h
+        self.blockSize = (self.cellSide * 2, self.cellSide * 2)  # w x h
+        self.blockStride = self.cellSize
 
     def calculateDescriptor(self, img) -> object:
         croppedSize = self.getCroppedSize(self.cellSize, self.getSizeFromShape(img.shape))

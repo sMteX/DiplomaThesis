@@ -5,13 +5,12 @@ from timeit import default_timer as timer
 
 class FT(BaseHogFT):
     # parameter for FTransform
-    kernelRadius = 12
-    kernel = None
+    kernelRadius: int
+    kernel: np.ndarray
 
-    def __init__(self, partType, parts, imageType, images, outputDir, kernelRadius=None):
+    def __init__(self, partType, parts, imageType, images, outputDir, kernelRadius=8):
         super().__init__(partType, parts, imageType, images, outputDir)
-        if kernelRadius is not None:
-            self.kernelRadius = kernelRadius
+        self.kernelRadius = kernelRadius
         self.kernel = ft.createKernel(ft.LINEAR, self.kernelRadius, chn=1)
 
     def calculateDescriptor(self, img) -> object:

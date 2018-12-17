@@ -39,6 +39,7 @@ class BaseHogFT(BaseAlgorithm):
                 "eY": -1
             }
 
+            allImageProcessTime = timer()
             for image in self.imageData:
                 imageProcessTime = timer()
                 subsets = 0
@@ -58,10 +59,12 @@ class BaseHogFT(BaseAlgorithm):
                         best["eX"] = best["sX"] + partSize[0]
                         best["eY"] = best["sY"] + partSize[1]
 
-                self.diagnostics.times["imageProcess"].append(timer() - imageProcessTime)
+                self.diagnostics.times["individualImageMatching"].append(timer() - imageProcessTime)
                 self.diagnostics.counts["subsets"].append(subsets)
 
-            self.diagnostics.times["partProcess"].append(timer() - partProcessTime)
+            end = timer()
+            self.diagnostics.times["allImagesMatching"].append(end - allImageProcessTime)
+            self.diagnostics.times["partProcess"].append(end - partProcessTime)
 
             self.results.append({
                 "outputFilename": os.path.abspath(f"{self.outputDir}/{i}.jpg"),
@@ -71,6 +74,8 @@ class BaseHogFT(BaseAlgorithm):
                 "eX": best["eX"],
                 "eY": best["eY"]
             })
+
+    # implement in child algorithms
 
     def calculateDescriptor(self, img) -> object:
         pass
@@ -97,7 +102,8 @@ class BaseHogFT(BaseAlgorithm):
         average = {
             "partDescriptor": self.avg(self.diagnostics.times["partDescriptor"]),
             "imageDescriptor": self.avg(self.diagnostics.times["imageDescriptor"]),
-            "imageProcess": self.avg(self.diagnostics.times["imageProcess"]),
+            "individualImageMatching": self.avg(self.diagnostics.times["individualImageMatching"]),
+            "allImagesMatching": self.avg(self.diagnostics.times["allImagesMatching"]),
             "partProcess": self.avg(self.diagnostics.times["partProcess"]),
 
             "partDescriptorSize": self.avg(self.diagnostics.counts["partDescriptorSize"], self.AverageType.COUNT),
@@ -109,6 +115,9 @@ class BaseHogFT(BaseAlgorithm):
         print("Average times [ms]:")
         print(f"    - Descriptor computing for a part: {average['partDescriptor']}")
         print(f"    - Descriptor computing for a image: {average['imageDescriptor']}")
+        print(f"    - Matching part with individual image: {average['individualImageMatching']}")
+        print(f"    - Matching part with all images: {average['allImagesMatching']}")
         print(f"    - Processing entire part: {average['partProcess']}\n")
         print(f"Average part descriptor size: {average['partDescriptorSize']}")
         print(f"Average image descriptor size: {average['imageDescriptorSize']}")
+        print(f"Average subsets in image: {average['subsets']}")
