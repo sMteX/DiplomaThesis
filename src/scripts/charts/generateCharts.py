@@ -67,8 +67,7 @@ VARIABLES = [
     "descriptorImageSize",
     "accuracy"
 ]
-# default colors, can be hex RGB string
-COLORS = ["r", "g", "b", "c", "m", "y", "k"]
+COLORS = ["#cb00d1", "#f51f44", "#ff9500", "#ffe40c", "#00ff72", "#00d8ff", "#0055ff"]
 
 def getVariableValues(variableName, dataset = data.DATA_SINGLE):
     return list(dataset[variableName].values())
