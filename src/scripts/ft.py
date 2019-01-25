@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.FT import FT
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.FT import FT
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

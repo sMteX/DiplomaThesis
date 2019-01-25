@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.HOG import HOG
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.HOG import HOG
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

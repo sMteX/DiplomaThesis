@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.SIFT import SIFT
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.SIFT import SIFT
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

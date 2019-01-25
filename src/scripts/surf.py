@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.SURF import SURF
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.SURF import SURF
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import os
-from src.playground.algorithms.BaseAlgorithm import BaseAlgorithm
+from src.scripts.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
 class BaseKeypointAlgorithm(BaseAlgorithm):

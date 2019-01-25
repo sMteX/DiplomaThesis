@@ -1,5 +1,5 @@
 import cv2 as cv
-from src.playground.algorithms.BaseKeypointAlgorithm import BaseKeypointAlgorithm
+from src.scripts.algorithms.BaseKeypointAlgorithm import BaseKeypointAlgorithm
 from timeit import default_timer as timer
 
 class SURF(BaseKeypointAlgorithm):

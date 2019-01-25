@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.FREAK import FREAK
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.FREAK import FREAK
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

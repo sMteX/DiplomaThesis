@@ -1,5 +1,5 @@
-from src.playground.algorithms.BaseAlgorithm import fromDirectory
-from src.playground.algorithms.ORB import ORB
+from src.scripts.algorithms.BaseAlgorithm import fromDirectory
+from src.scripts.algorithms.ORB import ORB
 
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"

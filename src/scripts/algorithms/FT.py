@@ -1,6 +1,6 @@
 import cv2.ft as ft
 import numpy as np
-from src.playground.algorithms.BaseHogFT import BaseHogFT
+from src.scripts.algorithms.BaseHogFT import BaseHogFT
 from timeit import default_timer as timer
 
 class FT(BaseHogFT):
