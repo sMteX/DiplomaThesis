@@ -86,11 +86,11 @@ def getVariableKeys(variableName, dataset = data.DATA_SINGLE):
 
 def plotAndSave(dataset, variableName, filename=None, show=False):
     if CHART_DATA[variableName]["split"]:
-        plotAndSaveTwinAxes(dataset, variableName, filename, show)
+        plotTwinAxesSingleData(dataset, variableName, filename, show)
     else:
-        plotAndSaveSingleAxis(dataset, variableName, filename, show)
+        plotSingleAxisSingleData(dataset, variableName, filename, show)
 
-def plotAndSaveSingleAxis(dataset, variableName, filename=None, show=False):
+def plotSingleAxisSingleData(dataset, variableName, filename=None, show=False):
     algorithms = getVariableKeys(variableName, dataset)
     values = getVariableValues(variableName, dataset)
     fig, ax = plt.subplots()
@@ -117,7 +117,7 @@ def plotAndSaveSingleAxis(dataset, variableName, filename=None, show=False):
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
 
-def plotAndSaveTwinAxes(dataset, variableName, filename=None, show=False):
+def plotTwinAxesSingleData(dataset, variableName, filename=None, show=False):
     algorithms = getVariableKeys(variableName, dataset)
     values = getVariableValues(variableName, dataset)
     fig, ax = plt.subplots()
@@ -208,9 +208,37 @@ def testQuadrupleYAxis():
     plt.grid(True, axis="y")
     plt.show()
 
-print("Generating charts...")
+def testTwinAxesTwinData():
+    fig, left = plt.subplots()
 
-for var in VARIABLES:
-    plotAndSave(data.DATA_SINGLE, var, f"single/{var}.png")
+    right = left.twinx()
 
-print("Done!")
+    labels = getVariableKeys("descriptorImage")
+    descriptorPart = getVariableValues("descriptorPart", data.DATA_SINGLE)
+    descriptorImage = getVariableValues("descriptorImage", data.DATA_SINGLE)
+
+    barWidth = 0.35
+
+    index = np.arange(len(labels))
+
+    left.set_title("Výpočet deskriptoru")
+    left.set_xlabel("Algoritmus")
+    left.set_xticks(index)
+    left.set_xticklabels(labels)
+
+    left.set_ylabel("části - čas [ms]")
+    right.set_ylabel("obrázku - čas [ms]")
+
+    l1 = left.bar(index - barWidth / 2, descriptorPart, barWidth, color=COLORS, edgecolor="black")
+    l2 = right.bar(index + barWidth / 2, descriptorImage, barWidth, color=COLORS, hatch="x", edgecolor="black")
+
+    plt.legend([l1, l2], ("Výpočet deskriptoru části", "Výpočet deskriptoru obrázku"))
+    plt.grid(True, axis="y")
+    plt.show()
+
+# print("Generating charts...")
+#
+# for var in VARIABLES:
+#     plotAndSave(data.DATA_SINGLE, var, f"single/{var}.png")
+#
+# print("Done!")
