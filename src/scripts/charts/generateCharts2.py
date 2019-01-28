@@ -8,25 +8,34 @@ OUTPUT_DIR = "./output"
 
 COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
 
-def plotSingleAxisSingleData(data, title, yAxisLabel,
-                             percentage=False, filename=None, show=False):
+def plotSingleAxisSingleData(data, yAxisLabel,
+                             title=None, percentage=False, filename=None, show=False):
     algorithms = list(data.keys())
     values = list(data.values())
     fig, ax = plt.subplots()
 
     index = np.arange(len(algorithms))
 
-    ax.set_title(title)
+    if not title is None:
+        ax.set_title(title)
 
     ax.set_xlabel("Algoritmus")
+    ax.xaxis.label.set_fontsize("x-large")
     ax.set_xticks(index)
     ax.set_xticklabels(algorithms)
+    for tick in ax.get_xticklabels():
+        tick.set_fontsize("large")
 
     ax.set_ylabel(yAxisLabel)
+    if len(yAxisLabel) <= 30:
+        ax.yaxis.label.set_fontsize("x-large")
+    else:
+        ax.yaxis.label.set_fontsize("large")
+
     if percentage:
         ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{(100 * y):.0f} %"))
 
-    ax.bar(index, values, color=COLORS)
+    ax.bar(index, values, color=COLORS, edgecolor="black")
 
     plt.grid(True, axis="y")
     plt.tight_layout()
@@ -37,33 +46,45 @@ def plotSingleAxisSingleData(data, title, yAxisLabel,
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
 
-def plotTwinAxesSingleData(leftData, rightData, title, leftYAxisLabel, rightYAxisLabel,
-                           filename=None, show=False):
+def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
+                           title=None, filename=None, show=False):
     leftAlgorithms = list(leftData.keys())
     leftValues = list(leftData.values())
     rightAlgorithms = list(rightData.keys())
     rightValues = list(rightData.values())
-    fig, ax = plt.subplots()
+    fig, left = plt.subplots()
 
     algorithms = leftAlgorithms + rightAlgorithms
     index = np.arange(len(algorithms))
 
-    ax.set_title(title)
+    if not title is None:
+        left.set_title(title)
 
-    ax.set_xticks(index)
-    ax.set_xticklabels(algorithms)
-    ax.set_xlabel("Algoritmus")
+    left.set_xlabel("Algoritmus")
+    left.xaxis.label.set_fontsize("x-large")
+    left.set_xticks(index)
+    left.set_xticklabels(algorithms)
+    for tick in left.get_xticklabels():
+        tick.set_fontsize("large")
 
-    ax.set_ylabel(leftYAxisLabel)
+    left.set_ylabel(leftYAxisLabel)
+    if len(leftYAxisLabel) <= 30:
+        left.yaxis.label.set_fontsize("x-large")
+    else:
+        left.yaxis.label.set_fontsize("large")
 
     # assume HOG is on the first index
-    ax.bar(index[:len(leftAlgorithms)], leftValues, color=COLORS[:len(leftAlgorithms)])
+    left.bar(index[:len(leftAlgorithms)], leftValues, color=COLORS[:len(leftAlgorithms)], edgecolor="black")
 
-    ax2 = ax.twinx()
+    right = left.twinx()
 
-    ax2.set_ylabel(rightYAxisLabel)
+    right.set_ylabel(rightYAxisLabel)
+    if len(rightYAxisLabel) <= 30:
+        right.yaxis.label.set_fontsize("x-large")
+    else:
+        right.yaxis.label.set_fontsize("large")
 
-    ax2.bar(index[len(leftAlgorithms):], rightValues, color=COLORS[len(leftAlgorithms):]) # except first (which is HOG)
+    right.bar(index[len(leftAlgorithms):], rightValues, color=COLORS[len(leftAlgorithms):], edgecolor="black") # except first (which is HOG)
 
     plt.grid(True, axis="y")
     plt.tight_layout()
@@ -74,8 +95,8 @@ def plotTwinAxesSingleData(leftData, rightData, title, leftYAxisLabel, rightYAxi
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
 # assume it's pairs of data, all containing same number of items
-def plotTwinAxesTwinData(leftData, rightData, title, leftYAxisLabel, rightYAxisLabel, leftLegend, rightLegend,
-                         filename=None, show=False):
+def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, leftLegend, rightLegend,
+                         title=None, filename=None, show=False):
     fig, left = plt.subplots()
 
     right = left.twinx()
@@ -88,13 +109,27 @@ def plotTwinAxesTwinData(leftData, rightData, title, leftYAxisLabel, rightYAxisL
 
     index = np.arange(len(labels))
 
-    left.set_title(title)
+    if not title is None:
+        left.set_title(title)
+
     left.set_xlabel("Algoritmus")
+    left.xaxis.label.set_fontsize("x-large")
     left.set_xticks(index)
     left.set_xticklabels(labels)
+    for tick in left.get_xticklabels():
+        tick.set_fontsize("large")
 
     left.set_ylabel(leftYAxisLabel)
+    if len(leftYAxisLabel) <= 30:
+        left.yaxis.label.set_fontsize("x-large")
+    else:
+        left.yaxis.label.set_fontsize("large")
     right.set_ylabel(rightYAxisLabel)
+    if len(rightYAxisLabel) <= 30:
+        right.yaxis.label.set_fontsize("x-large")
+    else:
+        right.yaxis.label.set_fontsize("large")
+
 
     l1 = left.bar(index - barWidth / 2, leftValues, barWidth, color=COLORS, edgecolor="black")
     l2 = right.bar(index + barWidth / 2, rightValues, barWidth, color=COLORS, hatch="x", edgecolor="black")
@@ -174,43 +209,37 @@ def cherryPick(dictionary, keys, include=True):
 print("Generating charts...")
 
 plotSingleAxisSingleData(data=data.DATA_SINGLE["accuracy"],
-                         title="Přesnost hledání",
                          yAxisLabel="Přesnost [%]",
                          percentage=True,
                          filename="single/new/accuracy.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG")),
                        rightData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG"), include=False),
-                       title="Hledání části v jednom obrázku",
-                       leftYAxisLabel="Čas (HOG) [ms]",
-                       rightYAxisLabel="Čas [ms]",
+                       leftYAxisLabel="Délka hledání v jednom obrázku (HOG) [ms]",
+                       rightYAxisLabel="Délka hledání v jednom obrázku [ms]",
                        filename="single/new/matching.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["partProcess"], ("HOG")),
                        rightData=cherryPick(data.DATA_SINGLE["partProcess"], ("HOG"), include=False),
-                       title="Zpracování celé části",
-                       leftYAxisLabel="Čas (HOG) [ms]",
-                       rightYAxisLabel="Čas [ms]",
+                       leftYAxisLabel="Délka zpracování celé části (HOG) [ms]",
+                       rightYAxisLabel="Délka zpracování celé části [ms]",
                        filename="single/new/partProcess.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["totalTime"], ("HOG")),
                        rightData=cherryPick(data.DATA_SINGLE["totalTime"], ("HOG"), include=False),
-                       title="Celkový čas",
-                       leftYAxisLabel="Čas (HOG) [ms]",
-                       rightYAxisLabel="Čas [ms]",
+                       leftYAxisLabel="Celkový čas (HOG) [ms]",
+                       rightYAxisLabel="Celkový čas [ms]",
                        filename="single/new/totalTime.png")
 plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPart"],
                      rightData=data.DATA_SINGLE["descriptorImage"],
-                     title="Výpočet deskriptoru",
-                     leftYAxisLabel="Části - čas [ms]",
-                     rightYAxisLabel="Obrázku - čas [ms]",
-                     leftLegend="Výpočet deskriptoru části",
-                     rightLegend="Výpočet deskriptoru obrázku",
+                     leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
+                     rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
                      filename="single/new/descriptor.png")
 plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPartSize"],
                      rightData=data.DATA_SINGLE["descriptorImageSize"],
-                     title="Průměrná velikost deskriptoru",
-                     leftYAxisLabel="Části",
-                     rightYAxisLabel="Obrázku",
-                     leftLegend="Velikost deskriptoru části",
-                     rightLegend="Velikost deskriptoru obrázku",
+                     leftYAxisLabel="Velikost deskriptoru části",
+                     rightYAxisLabel="Velikost deskriptoru obrázku",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
                      filename="single/new/descriptorSize.png")
 
 print("Done!")
