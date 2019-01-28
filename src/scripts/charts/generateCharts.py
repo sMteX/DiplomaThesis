@@ -13,47 +13,56 @@ CHART_DATA = {
     "totalTime": {
         "title": "Celkový čas",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": True,
     },
     "descriptorPart": {
-        "title": "Spočtení deskriptoru pro hledanou část",
+        "title": "Výpočet deskriptoru pro hledanou část",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": False,
     },
     "descriptorImage": {
-        "title": "Spočtení deskriptoru pro jednotlivý obrázek",
+        "title": "Výpočet deskriptoru pro jednotlivý obrázek",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": False,
     },
     "matchingSingle": {
         "title": "Hledání části v jednotlivém obrázku",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": True,
     },
     "matchingAll": {
         "title": "Hledání části ve všech obrázcích",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": True,
     },
     "partProcess": {
         "title": "Zpracování celé části",
         "yAxisLabel": Y_AXIS_TIME,
-        "type": "number"
+        "percentage": False,
+        "split": True,
     },
     "descriptorPartSize": {
         "title": "Průměrná velikost deskriptoru části",
         "yAxisLabel": Y_AXIS_SIZE,
-        "type": "number"
+        "percentage": False,
+        "split": False,
     },
     "descriptorImageSize": {
         "title": "Průměrná velikost deskriptoru obrázku",
         "yAxisLabel": Y_AXIS_SIZE,
-        "type": "number"
+        "percentage": False,
+        "split": False,
     },
     "accuracy": {
         "title": "Přesnost hledání",
         "yAxisLabel": Y_AXIS_ACCURACY,
-        "type": "percentage"
+        "percentage": True,
+        "split": False,
     },
 }
 VARIABLES = [
@@ -67,7 +76,7 @@ VARIABLES = [
     "descriptorImageSize",
     "accuracy"
 ]
-COLORS = ["#cb00d1", "#f51f44", "#ff9500", "#ffe40c", "#00ff72", "#00d8ff", "#0055ff"]
+COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
 
 def getVariableValues(variableName, dataset = data.DATA_SINGLE):
     return list(dataset[variableName].values())
@@ -76,26 +85,69 @@ def getVariableKeys(variableName, dataset = data.DATA_SINGLE):
     return list(dataset[variableName].keys())
 
 def plotAndSave(dataset, variableName, filename=None, show=False):
+    if CHART_DATA[variableName]["split"]:
+        plotAndSaveTwinAxes(dataset, variableName, filename, show)
+    else:
+        plotAndSaveSingleAxis(dataset, variableName, filename, show)
+
+def plotAndSaveSingleAxis(dataset, variableName, filename=None, show=False):
     algorithms = getVariableKeys(variableName, dataset)
     values = getVariableValues(variableName, dataset)
     fig, ax = plt.subplots()
 
     index = np.arange(len(algorithms))
 
-    ax.bar(index, values, color=COLORS)
-    ax.set_xlabel("Algoritmus")
-    ax.set_ylabel(CHART_DATA[variableName]["yAxisLabel"])
-    if CHART_DATA[variableName]["type"] == "percentage":
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{(100 * y):.0f} %"))
     ax.set_title(CHART_DATA[variableName]["title"])
+
+    ax.set_xlabel("Algoritmus")
     ax.set_xticks(index)
     ax.set_xticklabels(algorithms)
-    plt.grid(True, axis="y", zorder=0)
+
+    ax.set_ylabel(CHART_DATA[variableName]["yAxisLabel"])
+    if CHART_DATA[variableName]["percentage"]:
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{(100 * y):.0f} %"))
+
+    ax.bar(index, values, color=COLORS)
+
+    plt.grid(True, axis="y")
 
     if show:
         plt.show()
     if not filename is None:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+
+
+def plotAndSaveTwinAxes(dataset, variableName, filename=None, show=False):
+    algorithms = getVariableKeys(variableName, dataset)
+    values = getVariableValues(variableName, dataset)
+    fig, ax = plt.subplots()
+
+    index = np.arange(len(algorithms))
+
+    ax.set_title(CHART_DATA[variableName]["title"])
+
+    ax.set_xticks(index)
+    ax.set_xticklabels(algorithms)
+    ax.set_xlabel("Algoritmus")
+
+    ax.set_ylabel(f"{CHART_DATA[variableName]['yAxisLabel']} (HOG)")
+
+    # assume HOG is on the first index
+    ax.bar(index[:1], values[:1], color=COLORS[:1])
+
+    ax2 = ax.twinx()
+
+    ax2.set_ylabel(CHART_DATA[variableName]["yAxisLabel"])
+
+    ax2.bar(index[1:], values[1:], color=COLORS[1:]) # except first (which is HOG)
+
+    plt.grid(True, axis="y")
+
+    if show:
+        plt.show()
+    if not filename is None:
+        plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+
 
 print("Generating charts...")
 
