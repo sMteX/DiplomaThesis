@@ -4,7 +4,7 @@ from src.scripts.algorithms.SIFT import SIFT
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/sift/new"
+outputDir = imagesDir + "/testing/output/old_single/sift/new"
 
 sift = SIFT(parts=fromDirectory(partsDir),
             images=fromDirectory(originalDir))

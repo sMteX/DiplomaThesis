@@ -84,7 +84,7 @@ class BaseHogFT(BaseAlgorithm):
     def getResultPointScale(self) -> object:
         pass
 
-    def writeResults(self, directory):
+    def writeResults(self, directory, includePart=False):
         path = os.path.abspath(directory)
         for i, result in enumerate(self.results):
             resultImage = result.image.copy()
@@ -92,9 +92,16 @@ class BaseHogFT(BaseAlgorithm):
                                        pt1=result.start,
                                        pt2=result.end,
                                        color=(0, 0, 255))
-            cv.imwrite(f"{path}/{i}.jpg", resultImage)
 
-    def printResults(self):
+            if includePart:
+                out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
+                out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
+                out[0:, result.part.shape[1]:] = resultImage
+                cv.imwrite(f"{path}/{i}.jpg", out)
+            else:
+                cv.imwrite(f"{path}/{i}.jpg", resultImage)
+
+    def printResults(self, filename=None):
         average = {
             "partDescriptor": self.avg(self.diagnostics.times.partDescriptor),
             "imageDescriptor": self.avg(self.diagnostics.times.imageDescriptor),
@@ -107,13 +114,23 @@ class BaseHogFT(BaseAlgorithm):
             "subsets": self.avg(self.diagnostics.counts.subsets, self.AverageType.COUNT),
         }
 
-        print(f"Total time [ms]: {self.diagnostics.totalTime}")
-        print("Average times [ms]:")
-        print(f"    - Descriptor computing for a part: {average['partDescriptor']}")
-        print(f"    - Descriptor computing for a image: {average['imageDescriptor']}")
-        print(f"    - Matching part with individual image: {average['individualImageMatching']}")
-        print(f"    - Matching part with all images: {average['allImagesMatching']}")
-        print(f"    - Processing entire part: {average['partProcess']}\n")
-        print(f"Average part descriptor size: {average['partDescriptorSize']}")
-        print(f"Average image descriptor size: {average['imageDescriptorSize']}")
-        print(f"Average subsets in image: {average['subsets']}")
+        lines = [
+            f"Total time [ms]: {self.diagnostics.totalTime}\n",
+            "Average times [ms]:\n",
+            f"    - Descriptor computing for a part: {average['partDescriptor']}\n",
+            f"    - Descriptor computing for a image: {average['imageDescriptor']}\n",
+            f"    - Matching part with individual image: {average['individualImageMatching']}\n",
+            f"    - Matching part with all images: {average['allImagesMatching']}\n",
+            f"    - Processing entire part: {average['partProcess']}\n\n",
+            f"Average part descriptor size: {average['partDescriptorSize']}\n",
+            f"Average image descriptor size: {average['imageDescriptorSize']}\n",
+            f"Average subsets in image: {average['subsets']}"
+        ]
+
+        if not filename is None:
+            with open(filename, "w") as file:
+                for line in lines:
+                    file.write(line)
+        else:
+            for line in lines:
+                print(line)

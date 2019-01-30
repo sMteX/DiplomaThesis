@@ -71,7 +71,7 @@ signedGradients = True
 imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/hog"
+outputDir = imagesDir + "/testing/output/old_single/hog"
 
 imageData = []
 """

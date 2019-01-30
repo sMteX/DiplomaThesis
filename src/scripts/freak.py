@@ -4,7 +4,7 @@ from src.scripts.algorithms.FREAK import FREAK
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/fast_freak/new"
+outputDir = imagesDir + "/testing/output/old_single/fast_freak/new"
 
 freak = FREAK(parts=fromDirectory(partsDir),
               images=fromDirectory(originalDir))

@@ -93,7 +93,7 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
     def calculateDescriptor(self, img) -> object:
         pass
 
-    def writeResults(self, directory):
+    def writeResults(self, directory, includePart=False):
         path = os.path.abspath(directory)
         for i, result in enumerate(self.results):
             resultImage = result.image.copy()
@@ -109,9 +109,16 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
                                              matches1to2=result.topMatches,
                                              outImg=resultImage,
                                              flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-            cv.imwrite(f"{path}/{'kp_' if self.drawMatches else ''}{i}.jpg", resultImage)
+                cv.imwrite(f"{path}/{i}.jpg", resultImage)
+            elif includePart:
+                out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
+                out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
+                out[0:, result.part.shape[1]:] = resultImage
+                cv.imwrite(f"{path}/{i}.jpg", out)
+            else:
+                cv.imwrite(f"{path}/{i}.jpg", resultImage)
 
-    def printResults(self):
+    def printResults(self, filename=None):
         average = {
             "partDescriptor": self.avg(self.diagnostics.times.partDescriptor),
             "imageDescriptor": self.avg(self.diagnostics.times.imageDescriptor),
@@ -123,15 +130,26 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             "imageDescriptorSize": self.avg(self.diagnostics.counts.imageDescriptorSize, self.AverageType.COUNT),
         }
 
-        print(f"Total time [ms]: {self.diagnostics.totalTime}")
-        print("Average times [ms]:")
-        print(f"    - Keypoint and descriptor computing for a part: {average['partDescriptor']}")
-        print(f"    - Keypoint and descriptor computing for an image: {average['imageDescriptor']}")
-        print(f"    - Matching part with individual image: {average['individualImageMatching']}")
-        print(f"    - Matching part with all images: {average['allImagesMatching']}")
-        print(f"    - Processing entire part: {average['partProcess']}\n")
-        print(f"Average part descriptor size: {average['partDescriptorSize']}")
-        print(f"Average image descriptor size: {average['imageDescriptorSize']}")
+        lines = [
+            f"Total time [ms]: {self.diagnostics.totalTime}\n",
+            "Average times [ms]:\n",
+            f"    - Keypoint and descriptor computing for a part: {average['partDescriptor']}\n",
+            f"    - Keypoint and descriptor computing for an image: {average['imageDescriptor']}\n",
+            f"    - Matching part with individual image: {average['individualImageMatching']}\n",
+            f"    - Matching part with all images: {average['allImagesMatching']}\n",
+            f"    - Processing entire part: {average['partProcess']}\n\n",
+            f"Average part descriptor size: {average['partDescriptorSize']}\n",
+            f"Average image descriptor size: {average['imageDescriptorSize']}"
+        ]
+
+        if not filename is None:
+            with open(filename, "w") as file:
+                for line in lines:
+                    file.write(line)
+        else:
+            for line in lines:
+                print(line)
+
 
     @staticmethod
     def checkValidDetectOutput(keypoints, descriptors):

@@ -16,7 +16,7 @@ def checkValidDetectOutput(keypoints, descriptors):
 imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/orb"
+outputDir = imagesDir + "/testing/output/old_single/orb"
 
 diagnostics = {
     "computeTimes": {  # how long it takes to:

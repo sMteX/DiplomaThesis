@@ -9,7 +9,7 @@ DRAW_MATCHES = True
 imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/sift"
+outputDir = imagesDir + "/testing/output/old_single/sift"
 
 diagnostics = {
     "computeTimes": {                   # how long it takes to:

@@ -4,7 +4,7 @@ from src.scripts.algorithms.ORB import ORB
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/orb/new"
+outputDir = imagesDir + "/testing/output/old_single/orb/new"
 
 orb = ORB(parts=fromDirectory(partsDir),
           images=fromDirectory(originalDir))

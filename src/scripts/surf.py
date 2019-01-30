@@ -4,7 +4,7 @@ from src.scripts.algorithms.SURF import SURF
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/surf/new"
+outputDir = imagesDir + "/testing/output/old_single/surf/new"
 
 surf = SURF(parts=fromDirectory(partsDir),
             images=fromDirectory(originalDir))

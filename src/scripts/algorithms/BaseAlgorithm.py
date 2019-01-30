@@ -34,6 +34,15 @@ def fromPaths(paths) -> List[InputImage]:
         result.append(InputImage(cv.imread(absolute), absolute))
     return result
 
+def fromFiles(*files) -> List[InputImage]:
+    result = []
+    for file in files:
+        absolute = os.path.abspath(file)
+        if not os.path.isfile(absolute):
+            continue
+        result.append(InputImage(cv.imread(absolute), absolute))
+    return result
+
 def fromImages(*images) -> List[InputImage]:
     result = []
     for image in images:
@@ -101,6 +110,9 @@ class BaseAlgorithm:
         """
         self.parts = parts
         self.images = images
+        self.diagnostics = self.Diagnostics()
+        self.imageData = []
+        self.results = []
     """
     Overall structure of the algorithm stays the same
 
@@ -140,10 +152,10 @@ class BaseAlgorithm:
     def processParts(self):
         pass
 
-    def writeResults(self, directory):
+    def writeResults(self, directory, includePart=False):
         pass
 
-    def printResults(self):
+    def printResults(self, filename=None):
         pass
 
     @staticmethod

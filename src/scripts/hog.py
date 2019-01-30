@@ -4,7 +4,7 @@ from src.scripts.algorithms.HOG import HOG
 imagesDir = "../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/hog/new"
+outputDir = imagesDir + "/testing/output/old_single/hog/new"
 
 hog = HOG(parts=fromDirectory(partsDir),
           images=fromDirectory(originalDir))

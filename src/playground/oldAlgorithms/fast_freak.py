@@ -9,7 +9,7 @@ DRAW_MATCHES = False
 imagesDir = "../../../data/images"
 partsDir = imagesDir + "/testing/parts"
 originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/fast_freak"
+outputDir = imagesDir + "/testing/output/old_single/fast_freak"
 
 diagnostics = {
     "computeTimes": {  # how long it takes to:
