@@ -1,4 +1,5 @@
 import gc
+from collections import namedtuple
 from src.scripts.algorithms.BaseAlgorithm import fromDirectory
 from src.scripts.algorithms.HOG import HOG
 from src.scripts.algorithms.FT import FT
@@ -13,56 +14,30 @@ partsDir = f"{imagesDir}/testing/parts"
 originalDir = f"{imagesDir}/original/300x300"
 outputDir = f"{imagesDir}/testing/output/300x300"
 
+Algorithm = namedtuple("Algorithm", "name type output")
+
 algorithms = [
-    {
-        "name": "HOG",
-        "class": HOG,
-        "output": f"{outputDir}/hog"
-    },
-    {
-        "name": "FT",
-        "class": FT,
-        "output": f"{outputDir}/ft"
-    },
-    {
-        "name": "SIFT",
-        "class": SIFT,
-        "output": f"{outputDir}/sift"
-    },
-    {
-        "name": "SURF",
-        "class": SURF,
-        "output": f"{outputDir}/surf"
-    },
-    {
-        "name": "BRIEF",
-        "class": BRIEF,
-        "output": f"{outputDir}/fast_brief"
-    },
-    {
-        "name": "ORB",
-        "class": ORB,
-        "output": f"{outputDir}/orb"
-    },
-    {
-        "name": "FREAK",
-        "class": FREAK,
-        "output": f"{outputDir}/fast_freak"
-    }
+    Algorithm(name="FT",    type=FT,    output=f"{outputDir}/ft"),
+    Algorithm(name="SIFT",  type=SIFT,  output=f"{outputDir}/sift"),
+    Algorithm(name="SURF",  type=SURF,  output=f"{outputDir}/surf"),
+    Algorithm(name="BRIEF", type=BRIEF, output=f"{outputDir}/fast_brief"),
+    Algorithm(name="ORB",   type=ORB,   output=f"{outputDir}/orb"),
+    Algorithm(name="FREAK", type=FREAK, output=f"{outputDir}/fast_freak"),
+    Algorithm(name="HOG",   type=HOG,   output=f"{outputDir}/hog")
 ]
 
 print("Started")
 
 for a in algorithms:
-    print(f"Algorithm: {a['name']}")
-    if a["name"] == "HOG":
+    print(f"Algorithm: {a.name}")
+    if a.name == "HOG":
         print("Get yourself a cup of coffee, this will take almost an hour")
     for i in range(10):
-        print(f"- Iteration {i}")
-        obj = a["class"](parts=fromDirectory(partsDir), images=fromDirectory(originalDir))
+        print(f"- Iteration {i + 1}")
+        obj = a.type(parts=fromDirectory(partsDir), images=fromDirectory(originalDir))
         obj.process()
-        obj.writeResults(f"{a['output']}/{i}", includePart=True)
-        obj.printResults(f"{a['output']}/{i}_result.txt")
+        obj.writeResults(f"{a.output}/{i}", includePart=True)
+        obj.printResults(f"{a.output}/{i}_result.txt")
         gc.collect()
 
 print("Ended")

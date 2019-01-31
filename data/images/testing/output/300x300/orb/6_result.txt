@@ -1,0 +1,10 @@
+Total time [ms]: 2283.146
+Average times [ms]:
+    - Keypoint and descriptor computing for a part: 2.767
+    - Keypoint and descriptor computing for an image: 18.824
+    - Matching part with individual image: 2.844
+    - Matching part with all images: 211.461
+    - Processing entire part: 214.305
+
+Average part descriptor size: 4943.55
+Average image descriptor size: 32968.71
