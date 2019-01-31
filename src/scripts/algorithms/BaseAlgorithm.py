@@ -7,10 +7,7 @@ from enum import Enum
 from timeit import default_timer as timer
 
 class InputImage:
-    filePath: str
-    colorImage: np.ndarray
-
-    def __init__(self, image, path=""):
+    def __init__(self, image: np.ndarray, path: str = "") -> None:
         self.colorImage = image
         if path == "":
             self.filePath = "<in memory image>"
@@ -52,59 +49,51 @@ def fromImages(*images) -> List[InputImage]:
 class BaseAlgorithm:
     class Diagnostics:
         class DiagnosticTimes:
-            partDescriptor = []
-            imageDescriptor = []
-            individualImageMatching = []
-            allImagesMatching = []
-            partProcess = []
+            def __init__(self):
+                self.partDescriptor = []
+                self.imageDescriptor = []
+                self.individualImageMatching = []
+                self.allImagesMatching = []
+                self.partProcess = []
 
         class DiagnosticCounts:
-            partDescriptorSize = []
-            imageDescriptorSize = []
-            subsets = []
+            def __init__(self):
+                self.partDescriptorSize = []
+                self.imageDescriptorSize = []
+                self.subsets = []
 
-        times = DiagnosticTimes()
-        counts = DiagnosticCounts()
-        totalTime = -1
+        def __init__(self):
+            self.times = self.DiagnosticTimes()
+            self.counts = self.DiagnosticCounts()
+            self.totalTime = -1
 
     class AverageType(Enum):
         TIME = 1
         COUNT = 2
 
     class MatchingResult:
-        part: np.ndarray = None
-        image: np.ndarray = None
-        # rectangle for where the match was found
-        start: (int, int)
-        end: (int, int)
-        # following variables are used in keypoint-based algorithms
-        partKeypoints: List[cv.KeyPoint]
-        imageKeypoints: List[cv.KeyPoint]
-        topMatches: List[cv.DMatch]
-
-        def __init__(self, part, image, start, end, partKeypoints=None, imageKeypoints=None, topMatches=None):
+        def __init__(self,
+                     part: np.ndarray,
+                     image: np.ndarray,
+                     start: (int, int),
+                     end: (int, int),
+                     partKeypoints: List[cv.KeyPoint] = None,
+                     imageKeypoints: List[cv.KeyPoint] = None,
+                     topMatches: List[cv.DMatch] = None) -> None:
             self.part = part
             self.image = image
+            # rectangle for where the match was found
             self.start = start
             self.end = end
+            # following variables are used in keypoint-based algorithms
             self.partKeypoints = partKeypoints
             self.imageKeypoints = imageKeypoints
             self.topMatches = topMatches
 
-
-    parts: List[InputImage] = []
-    images: List[InputImage] = []
-
-    diagnostics = Diagnostics()
-
-    imageData = []
-    results: List[MatchingResult] = []
-
-    def __init__(self, parts, images):
+    def __init__(self, parts: List[InputImage], images: List[InputImage]) -> None:
         """
         Initializes the base matching algorithm
 
-        :type parts: List[InputImage]
         :param parts: Images that are being matched ("parts")
         :param images: Image database to match into
         """
@@ -112,7 +101,7 @@ class BaseAlgorithm:
         self.images = images
         self.diagnostics = self.Diagnostics()
         self.imageData = []
-        self.results = []
+        self.results: List[BaseAlgorithm.MatchingResult] = []
     """
     Overall structure of the algorithm stays the same
 

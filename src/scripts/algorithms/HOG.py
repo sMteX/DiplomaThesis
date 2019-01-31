@@ -4,27 +4,23 @@ from src.scripts.algorithms.BaseHogFT import BaseHogFT
 from timeit import default_timer as timer
 
 class HOG(BaseHogFT):
-    # parameters for HOGDescriptor
-    cellSide: int
-    cellSize: (int, int) # w x h
-    blockSize: (int, int)  # w x h
-    blockStride: (int, int)
-    nBins = 9
-    # other parameters
-    derivAperture = 1
-    winSigma = -1.
-    histogramNormType = 0
-    L2HysThreshold = 0.2
-    gammaCorrection = 1
-    nLevels = 64
-    signedGradients = True
-
     def __init__(self, parts, images, cellSide=4):
         super().__init__(parts, images)
+        # parameters for HOGDescriptor
         self.cellSide = cellSide
         self.cellSize = (self.cellSide, self.cellSide)  # w x h
         self.blockSize = (self.cellSide * 2, self.cellSide * 2)  # w x h
         self.blockStride = self.cellSize
+
+        # other parameters
+        self.nBins = 9
+        self.derivAperture = 1
+        self.winSigma = -1.
+        self.histogramNormType = 0
+        self.L2HysThreshold = 0.2
+        self.gammaCorrection = 1
+        self.nLevels = 64
+        self.signedGradients = True
 
     def calculateDescriptor(self, img) -> object:
         croppedSize = self.getCroppedSize(self.cellSize, self.getSizeFromShape(img.shape))

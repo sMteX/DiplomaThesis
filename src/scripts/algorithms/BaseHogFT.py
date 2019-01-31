@@ -65,6 +65,7 @@ class BaseHogFT(BaseAlgorithm):
             self.diagnostics.times.allImagesMatching.append(end - allImageProcessTime)
             self.diagnostics.times.partProcess.append(end - partProcessTime)
 
+            # noinspection PyTypeChecker
             self.results.append(self.MatchingResult(part=part.colorImage,
                                                     image=best["colorImage"],
                                                     start=(best["sX"], best["sY"]),

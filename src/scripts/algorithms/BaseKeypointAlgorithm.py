@@ -5,9 +5,6 @@ from src.scripts.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
 class BaseKeypointAlgorithm(BaseAlgorithm):
-    topMatches: int
-    drawMatches: bool
-
     bf: cv.BFMatcher      # brute force matcher, its parameter "normType" varies with algorithms (L2 for SIFT/SURF, HAMMING for ORB, BRIEF, FREAK)
 
     def __init__(self, parts, images, topMatches=20, drawMatches=True):

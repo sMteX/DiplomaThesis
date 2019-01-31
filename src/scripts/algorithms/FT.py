@@ -4,12 +4,9 @@ from src.scripts.algorithms.BaseHogFT import BaseHogFT
 from timeit import default_timer as timer
 
 class FT(BaseHogFT):
-    # parameter for FTransform
-    kernelRadius: int
-    kernel: np.ndarray
-
     def __init__(self, parts, images, kernelRadius=8):
         super().__init__(parts, images)
+        # parameters for FTransform
         self.kernelRadius = kernelRadius
         self.kernel = ft.createKernel(ft.LINEAR, self.kernelRadius, chn=1)
 
