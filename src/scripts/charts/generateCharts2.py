@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import src.scripts.charts.data as data
@@ -8,8 +9,11 @@ OUTPUT_DIR = "./output"
 
 COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
 
+PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
+SECOND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
+
 def plotSingleAxisSingleData(data, yAxisLabel,
-                             title=None, percentage=False, filename=None, show=False):
+                             title=None, yAxisFormatter=None, filename=None, show=False):
     algorithms = list(data.keys())
     values = list(data.values())
     fig, ax = plt.subplots()
@@ -32,8 +36,8 @@ def plotSingleAxisSingleData(data, yAxisLabel,
     else:
         ax.yaxis.label.set_fontsize("large")
 
-    if percentage:
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{(100 * y):.0f} %"))
+    if not yAxisFormatter is None:
+        ax.yaxis.set_major_formatter(FuncFormatter(yAxisFormatter))
 
     ax.bar(index, values, color=COLORS, edgecolor="black")
 
@@ -47,7 +51,7 @@ def plotSingleAxisSingleData(data, yAxisLabel,
 
 
 def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
-                           title=None, filename=None, show=False):
+                           leftYAxisFormatter=None, rightYAxisFormatter=None, title=None, filename=None, show=False):
     leftAlgorithms = list(leftData.keys())
     leftValues = list(leftData.values())
     rightAlgorithms = list(rightData.keys())
@@ -73,6 +77,9 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
     else:
         left.yaxis.label.set_fontsize("large")
 
+    if not leftYAxisFormatter is None:
+        left.yaxis.set_major_formatter(FuncFormatter(leftYAxisFormatter))
+
     # assume HOG is on the first index
     left.bar(index[:len(leftAlgorithms)], leftValues, color=COLORS[:len(leftAlgorithms)], edgecolor="black")
 
@@ -83,6 +90,9 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
         right.yaxis.label.set_fontsize("x-large")
     else:
         right.yaxis.label.set_fontsize("large")
+
+    if not rightYAxisFormatter is None:
+        right.yaxis.set_major_formatter(FuncFormatter(rightYAxisFormatter))
 
     right.bar(index[len(leftAlgorithms):], rightValues, color=COLORS[len(leftAlgorithms):], edgecolor="black") # except first (which is HOG)
 
@@ -96,7 +106,7 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
 
 # assume it's pairs of data, all containing same number of items
 def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, leftLegend, rightLegend,
-                         title=None, filename=None, show=False):
+                         leftYAxisFormatter=None, rightYAxisFormatter=None, title=None, filename=None, show=False):
     fig, left = plt.subplots()
 
     right = left.twinx()
@@ -124,11 +134,16 @@ def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, l
         left.yaxis.label.set_fontsize("x-large")
     else:
         left.yaxis.label.set_fontsize("large")
+    if not leftYAxisFormatter is None:
+        left.yaxis.set_major_formatter(FuncFormatter(leftYAxisFormatter))
+
     right.set_ylabel(rightYAxisLabel)
     if len(rightYAxisLabel) <= 30:
         right.yaxis.label.set_fontsize("x-large")
     else:
         right.yaxis.label.set_fontsize("large")
+    if not rightYAxisFormatter is None:
+        right.yaxis.set_major_formatter(FuncFormatter(rightYAxisFormatter))
 
 
     l1 = left.bar(index - barWidth / 2, leftValues, barWidth, color=COLORS, edgecolor="black")
@@ -210,7 +225,7 @@ print("Generating charts...")
 
 plotSingleAxisSingleData(data=data.DATA_SINGLE["accuracy"],
                          yAxisLabel="Přesnost [%]",
-                         percentage=True,
+                         yAxisFormatter=PERCENTAGE_FORMATTER,
                          filename="single/new/accuracy.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG")),
                        rightData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG"), include=False),
@@ -246,7 +261,7 @@ print("Generating NEW charts...")
 
 plotSingleAxisSingleData(data=data.DATA_LARGE["accuracy"],
                          yAxisLabel="Přesnost [%]",
-                         percentage=True,
+                         yAxisFormatter=PERCENTAGE_FORMATTER,
                          filename="large/accuracy.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG")),
                        rightData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG"), include=False),
@@ -260,8 +275,10 @@ plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["partProcess"], ("HOG
                        filename="large/partProcess.png")
 plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG")),
                        rightData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG"), include=False),
-                       leftYAxisLabel="Celkový čas (HOG) [ms]",
-                       rightYAxisLabel="Celkový čas [ms]",
+                       leftYAxisLabel="Celkový čas (HOG) [s]",
+                       rightYAxisLabel="Celkový čas [s]",
+                       leftYAxisFormatter=SECOND_FORMATTER,
+                       rightYAxisFormatter=SECOND_FORMATTER,
                        filename="large/totalTime.png")
 plotTwinAxesTwinData(leftData=data.DATA_LARGE["descriptorPart"],
                      rightData=data.DATA_LARGE["descriptorImage"],
