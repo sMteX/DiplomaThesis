@@ -12,16 +12,27 @@ COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#73
 PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
 SECOND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
 
-def plotSingleAxisSingleData(data, yAxisLabel,
-                             title=None, yAxisFormatter=None, filename=None, show=False):
+def _checkSettings(settings, required):
+    for requiredArg in required:
+        if not requiredArg in settings:
+            raise TypeError(f"Required argument {requiredArg} not found in settings")
+
+# possible settings (kwargs):
+# required:
+#   yAxisLabel
+# optional:
+#   title,
+#   yAxisFormatter
+def plotSingleAxisSingleData(data, filename=None, show=False, **settings):
+    _checkSettings(settings, ["yAxisLabel"])
     algorithms = list(data.keys())
     values = list(data.values())
     fig, ax = plt.subplots()
 
     index = np.arange(len(algorithms))
 
-    if not title is None:
-        ax.set_title(title)
+    if "title" in settings:
+        ax.set_title(settings["title"])
 
     ax.set_xlabel("Algoritmus")
     ax.xaxis.label.set_fontsize("x-large")
@@ -30,14 +41,14 @@ def plotSingleAxisSingleData(data, yAxisLabel,
     for tick in ax.get_xticklabels():
         tick.set_fontsize("large")
 
-    ax.set_ylabel(yAxisLabel)
-    if len(yAxisLabel) <= 30:
+    ax.set_ylabel(settings["yAxisLabel"])
+    if len(settings["yAxisLabel"]) <= 30:
         ax.yaxis.label.set_fontsize("x-large")
     else:
         ax.yaxis.label.set_fontsize("large")
 
-    if not yAxisFormatter is None:
-        ax.yaxis.set_major_formatter(FuncFormatter(yAxisFormatter))
+    if "yAxisFormatter" in settings:
+        ax.yaxis.set_major_formatter(FuncFormatter(settings["yAxisFormatter"]))
 
     ax.bar(index, values, color=COLORS, edgecolor="black")
 
@@ -49,9 +60,16 @@ def plotSingleAxisSingleData(data, yAxisLabel,
     if not filename is None:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
-
-def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
-                           leftYAxisFormatter=None, rightYAxisFormatter=None, title=None, filename=None, show=False):
+# possible settings (kwargs):
+# required:
+#   leftYAxisLabel
+#   rightYAxisLabel
+# optional:
+#   leftYAxisFormatter
+#   rightYAxisFormatter
+#   title
+def plotTwinAxesSingleData(leftData, rightData, filename=None, show=False, **settings):
+    _checkSettings(settings, ["leftYAxisLabel", "rightYAxisLabel"])
     leftAlgorithms = list(leftData.keys())
     leftValues = list(leftData.values())
     rightAlgorithms = list(rightData.keys())
@@ -61,8 +79,8 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
     algorithms = leftAlgorithms + rightAlgorithms
     index = np.arange(len(algorithms))
 
-    if not title is None:
-        left.set_title(title)
+    if "title" in settings:
+        left.set_title(settings["title"])
 
     left.set_xlabel("Algoritmus")
     left.xaxis.label.set_fontsize("x-large")
@@ -71,28 +89,28 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
     for tick in left.get_xticklabels():
         tick.set_fontsize("large")
 
-    left.set_ylabel(leftYAxisLabel)
-    if len(leftYAxisLabel) <= 30:
+    left.set_ylabel(settings["leftYAxisLabel"])
+    if len(settings["leftYAxisLabel"]) <= 30:
         left.yaxis.label.set_fontsize("x-large")
     else:
         left.yaxis.label.set_fontsize("large")
 
-    if not leftYAxisFormatter is None:
-        left.yaxis.set_major_formatter(FuncFormatter(leftYAxisFormatter))
+    if "leftYAxisFormatter" in settings:
+        left.yaxis.set_major_formatter(FuncFormatter(settings["leftYAxisFormatter"]))
 
     # assume HOG is on the first index
     left.bar(index[:len(leftAlgorithms)], leftValues, color=COLORS[:len(leftAlgorithms)], edgecolor="black")
 
     right = left.twinx()
 
-    right.set_ylabel(rightYAxisLabel)
-    if len(rightYAxisLabel) <= 30:
+    right.set_ylabel(settings["rightYAxisLabel"])
+    if len(settings["rightYAxisLabel"]) <= 30:
         right.yaxis.label.set_fontsize("x-large")
     else:
         right.yaxis.label.set_fontsize("large")
 
-    if not rightYAxisFormatter is None:
-        right.yaxis.set_major_formatter(FuncFormatter(rightYAxisFormatter))
+    if "rightYAxisFormatter" in settings:
+        right.yaxis.set_major_formatter(FuncFormatter(settings["rightYAxisFormatter"]))
 
     right.bar(index[len(leftAlgorithms):], rightValues, color=COLORS[len(leftAlgorithms):], edgecolor="black") # except first (which is HOG)
 
@@ -105,8 +123,19 @@ def plotTwinAxesSingleData(leftData, rightData, leftYAxisLabel, rightYAxisLabel,
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
 # assume it's pairs of data, all containing same number of items
-def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, leftLegend, rightLegend,
-                         leftYAxisFormatter=None, rightYAxisFormatter=None, title=None, filename=None, show=False):
+
+# possible settings (kwargs):
+# required:
+#   leftYAxisLabel
+#   rightYAxisLabel
+#   leftLegend
+#   rightLegend
+# optional:
+#   leftYAxisFormatter
+#   rightYAxisFormatter
+#   title
+def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **settings):
+    _checkSettings(settings, ["leftYAxisLabel", "rightYAxisLabel", "leftLegend", "rightLegend"])
     fig, left = plt.subplots()
 
     right = left.twinx()
@@ -119,8 +148,8 @@ def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, l
 
     index = np.arange(len(labels))
 
-    if not title is None:
-        left.set_title(title)
+    if "title" in settings:
+        left.set_title(settings["title"])
 
     left.set_xlabel("Algoritmus")
     left.xaxis.label.set_fontsize("x-large")
@@ -129,27 +158,27 @@ def plotTwinAxesTwinData(leftData, rightData, leftYAxisLabel, rightYAxisLabel, l
     for tick in left.get_xticklabels():
         tick.set_fontsize("large")
 
-    left.set_ylabel(leftYAxisLabel)
-    if len(leftYAxisLabel) <= 30:
+    left.set_ylabel(settings["leftYAxisLabel"])
+    if len(settings["leftYAxisLabel"]) <= 30:
         left.yaxis.label.set_fontsize("x-large")
     else:
         left.yaxis.label.set_fontsize("large")
-    if not leftYAxisFormatter is None:
-        left.yaxis.set_major_formatter(FuncFormatter(leftYAxisFormatter))
+    if "leftYAxisFormatter" in settings:
+        left.yaxis.set_major_formatter(FuncFormatter(settings["leftYAxisFormatter"]))
 
-    right.set_ylabel(rightYAxisLabel)
-    if len(rightYAxisLabel) <= 30:
+    right.set_ylabel(settings["rightYAxisLabel"])
+    if len(settings["rightYAxisLabel"]) <= 30:
         right.yaxis.label.set_fontsize("x-large")
     else:
         right.yaxis.label.set_fontsize("large")
-    if not rightYAxisFormatter is None:
-        right.yaxis.set_major_formatter(FuncFormatter(rightYAxisFormatter))
+    if "rightYAxisFormatter" in settings:
+        right.yaxis.set_major_formatter(FuncFormatter(settings["rightYAxisFormatter"]))
 
 
     l1 = left.bar(index - barWidth / 2, leftValues, barWidth, color=COLORS, edgecolor="black")
     l2 = right.bar(index + barWidth / 2, rightValues, barWidth, color=COLORS, hatch="x", edgecolor="black")
 
-    plt.legend([l1, l2], (leftLegend, rightLegend))
+    plt.legend([l1, l2], (settings["leftLegend"], settings["rightLegend"]))
     plt.grid(True, axis="y")
 
     plt.tight_layout()
