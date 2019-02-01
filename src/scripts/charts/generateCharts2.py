@@ -242,4 +242,40 @@ plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPartSize"],
                      rightLegend="Obrázek",
                      filename="single/new/descriptorSize.png")
 
+print("Generating NEW charts...")
+
+plotSingleAxisSingleData(data=data.DATA_LARGE["accuracy"],
+                         yAxisLabel="Přesnost [%]",
+                         percentage=True,
+                         filename="large/accuracy.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG")),
+                       rightData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG"), include=False),
+                       leftYAxisLabel="Délka hledání v jednom obrázku (HOG) [ms]",
+                       rightYAxisLabel="Délka hledání v jednom obrázku [ms]",
+                       filename="large/matching.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["partProcess"], ("HOG")),
+                       rightData=cherryPick(data.DATA_LARGE["partProcess"], ("HOG"), include=False),
+                       leftYAxisLabel="Délka zpracování celé části (HOG) [ms]",
+                       rightYAxisLabel="Délka zpracování celé části [ms]",
+                       filename="large/partProcess.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG")),
+                       rightData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG"), include=False),
+                       leftYAxisLabel="Celkový čas (HOG) [ms]",
+                       rightYAxisLabel="Celkový čas [ms]",
+                       filename="large/totalTime.png")
+plotTwinAxesTwinData(leftData=data.DATA_LARGE["descriptorPart"],
+                     rightData=data.DATA_LARGE["descriptorImage"],
+                     leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
+                     rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
+                     filename="large/descriptor.png")
+plotTwinAxesTwinData(leftData=data.DATA_LARGE["descriptorPartSize"],
+                     rightData=data.DATA_LARGE["descriptorImageSize"],
+                     leftYAxisLabel="Velikost deskriptoru části",
+                     rightYAxisLabel="Velikost deskriptoru obrázku",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
+                     filename="large/descriptorSize.png")
+
 print("Done!")
