@@ -11,7 +11,7 @@ from src.scripts.algorithms.ORB import ORB
 from src.scripts.algorithms.FREAK import FREAK
 
 imagesDir = "../../data/images"
-partsDir = f"{imagesDir}/testing/parts"
+partsDir = f"{imagesDir}/testing/parts/300x300"
 originalDir = f"{imagesDir}/original/300x300"
 outputDir = f"{imagesDir}/testing/output/300x300"
 

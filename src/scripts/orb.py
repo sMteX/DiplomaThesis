@@ -2,7 +2,7 @@ from src.scripts.algorithms.BaseAlgorithm import fromDirectory
 from src.scripts.algorithms.ORB import ORB
 
 imagesDir = "../../data/images"
-partsDir = imagesDir + "/testing/parts"
+partsDir = imagesDir + "/testing/parts/300x300"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/old_single/orb/new"
 

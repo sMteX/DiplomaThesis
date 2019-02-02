@@ -69,7 +69,7 @@ nLevels = 64
 signedGradients = True
 
 imagesDir = "../../../data/images"
-partsDir = imagesDir + "/testing/parts"
+partsDir = imagesDir + "/testing/parts/300x300"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/old_single/hog"
 

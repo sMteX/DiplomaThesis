@@ -7,7 +7,7 @@ TOP_MATCHES = 20
 DRAW_MATCHES = False
 
 imagesDir = "../../../data/images"
-partsDir = imagesDir + "/testing/parts"
+partsDir = imagesDir + "/testing/parts/300x300"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/old_single/surf"
 

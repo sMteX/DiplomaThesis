@@ -41,7 +41,7 @@ def getOptimalRadius(height, width):
 kernelRadius = 8
 
 imagesDir = "../../../data/images"
-partsDir = imagesDir + "/testing/parts"
+partsDir = imagesDir + "/testing/parts/300x300"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/old_single/ft"
 

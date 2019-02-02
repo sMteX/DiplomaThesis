@@ -2,7 +2,7 @@ from src.scripts.algorithms.BaseAlgorithm import fromDirectory
 from src.scripts.algorithms.FREAK import FREAK
 
 imagesDir = "../../data/images"
-partsDir = imagesDir + "/testing/parts"
+partsDir = imagesDir + "/testing/parts/300x300"
 originalDir = imagesDir + "/original/300x300"
 outputDir = imagesDir + "/testing/output/old_single/fast_freak/new"
 
