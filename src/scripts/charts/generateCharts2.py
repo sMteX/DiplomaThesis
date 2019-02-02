@@ -12,6 +12,23 @@ COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#73
 PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
 SECOND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
 
+PICTURE_SIZE = (10, 6)
+DEFAULT_MARGINS = {
+    "left": 1.5,
+    "right": 1.5,
+    "bottom": 0.6
+}
+TOP_MARGIN_NO_TITLE = 0.1
+TOP_MARGIN_TITLE = 0.3
+
+def transformMargins(left, right, top, bottom, pictureSize):
+    return {
+        "left": left / pictureSize[0],
+        "right": 1 - right / pictureSize[0],
+        "top": 1 - top / pictureSize[1],
+        "bottom": bottom / pictureSize[1]
+    }
+
 def _checkSettings(settings, required):
     for requiredArg in required:
         if not requiredArg in settings:
@@ -27,12 +44,12 @@ def plotSingleAxisSingleData(data, filename=None, show=False, **settings):
     _checkSettings(settings, ["yAxisLabel"])
     algorithms = list(data.keys())
     values = list(data.values())
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=PICTURE_SIZE)
 
     index = np.arange(len(algorithms))
 
     if "title" in settings:
-        ax.set_title(settings["title"])
+        ax.set_title(settings["title"], fontsize="x-large")
 
     ax.set_xlabel("Algoritmus")
     ax.xaxis.label.set_fontsize("x-large")
@@ -53,7 +70,9 @@ def plotSingleAxisSingleData(data, filename=None, show=False, **settings):
     ax.bar(index, values, color=COLORS, edgecolor="black")
 
     plt.grid(True, axis="y")
-    plt.tight_layout()
+
+    top = TOP_MARGIN_TITLE if "title" in settings else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
     if show:
         plt.show()
@@ -74,13 +93,13 @@ def plotTwinAxesSingleData(leftData, rightData, filename=None, show=False, **set
     leftValues = list(leftData.values())
     rightAlgorithms = list(rightData.keys())
     rightValues = list(rightData.values())
-    fig, left = plt.subplots()
+    fig, left = plt.subplots(figsize=PICTURE_SIZE)
 
     algorithms = leftAlgorithms + rightAlgorithms
     index = np.arange(len(algorithms))
 
     if "title" in settings:
-        left.set_title(settings["title"])
+        left.set_title(settings["title"], fontsize="x-large")
 
     left.set_xlabel("Algoritmus")
     left.xaxis.label.set_fontsize("x-large")
@@ -115,7 +134,9 @@ def plotTwinAxesSingleData(leftData, rightData, filename=None, show=False, **set
     right.bar(index[len(leftAlgorithms):], rightValues, color=COLORS[len(leftAlgorithms):], edgecolor="black") # except first (which is HOG)
 
     plt.grid(True, axis="y")
-    plt.tight_layout()
+
+    top = TOP_MARGIN_TITLE if "title" in settings else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
     if show:
         plt.show()
@@ -136,7 +157,7 @@ def plotTwinAxesSingleData(leftData, rightData, filename=None, show=False, **set
 #   title
 def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **settings):
     _checkSettings(settings, ["leftYAxisLabel", "rightYAxisLabel", "leftLegend", "rightLegend"])
-    fig, left = plt.subplots()
+    fig, left = plt.subplots(figsize=PICTURE_SIZE)
 
     right = left.twinx()
 
@@ -149,7 +170,7 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
     index = np.arange(len(labels))
 
     if "title" in settings:
-        left.set_title(settings["title"])
+        left.set_title(settings["title"], fontsize="x-large")
 
     left.set_xlabel("Algoritmus")
     left.xaxis.label.set_fontsize("x-large")
@@ -181,7 +202,8 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
     plt.legend([l1, l2], (settings["leftLegend"], settings["rightLegend"]))
     plt.grid(True, axis="y")
 
-    plt.tight_layout()
+    top = TOP_MARGIN_TITLE if "title" in settings else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
     if show:
         plt.show()
     if not filename is None:
