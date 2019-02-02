@@ -1,4 +1,4 @@
-# single measurement of collected data
+# 300x300, 10 images, 9 parts, 1 measurement
 DATA_SINGLE = {
     "totalTime": {
         "HOG": 7740.5,
@@ -83,7 +83,7 @@ DATA_SINGLE = {
     }
 }
 
-# 75 images, 50 parts, 10 iterations, averaged
+# 300x300, 75 images, 50 parts, 10 iterations, averaged
 DATA_LARGE = {
     "totalTime": {
         "HOG": 344377.786,
@@ -165,5 +165,90 @@ DATA_LARGE = {
         "BRIEF": 0.82,
         "ORB": 0.44,
         "FREAK": 0.88
+    }
+}
+
+# 300x300, 75 images, 50 parts, 10 iterations, averaged
+DATA_640x480_SMALL = {
+    "totalTime": {
+        "HOG": 123831.745,
+        "FT": 5001.742,
+        "SIFT": 3181.608,
+        "SURF": 1967.951,
+        "BRIEF": 4430.310,
+        "ORB": 300.856,
+        "FREAK": 6761.821
+    },
+    "descriptorPart": {
+        "HOG": 1.636,
+        "FT": 2.558,
+        "SIFT": 16.457,
+        "SURF": 7.708,
+        "BRIEF": 3.449,
+        "ORB": 2.373,
+        "FREAK": 5.857
+    },
+    "descriptorImage": {
+        "HOG": 24.197,
+        "FT": 24.321,
+        "SIFT": 139.698,
+        "SURF": 80.034,
+        "BRIEF": 21.925,
+        "ORB": 9.574,
+        "FREAK": 55.313
+    },
+    "matchingSingle": {
+        "HOG": 822.937,
+        "FT": 30.708,
+        "SIFT": 6.103,
+        "SURF": 4.567,
+        "BRIEF": 38.764,
+        "ORB": 1.281,
+        "FREAK": 39.111
+    },
+    "matchingAll": {
+        "HOG": 12344.106,
+        "FT": 460.663,
+        "SIFT": 91.577,
+        "SURF": 68.541,
+        "BRIEF": 581.495,
+        "ORB": 19.246,
+        "FREAK": 586.696
+    },
+    "partProcess": {
+        "HOG": 12345.987,
+        "FT": 463.304,
+        "SIFT": 108.142,
+        "SURF": 76.342,
+        "BRIEF": 585.052,
+        "ORB": 21.712,
+        "FREAK": 592.649
+    },
+    "descriptorPartSize": {
+        "HOG": 65804.40,
+        "FT": 508.80,
+        "SIFT": 28748.80,
+        "SURF": 14732.80,
+        "BRIEF": 26139.43,
+        "ORB": 7273.14,
+        "FREAK": 40064.00
+    },
+    "descriptorImageSize": {
+        "HOG": 681156.00,
+        "FT": 4941.00,
+        "SIFT": 193186.13,
+        "SURF": 109243.73,
+        "BRIEF": 160612.27,
+        "ORB": 14948.27,
+        "FREAK": 331221.33
+    },
+    "accuracy": {
+        "HOG": 1,
+        "FT": 1,
+        "SIFT": 1,
+        "SURF": 1,
+        "BRIEF": 0.7,
+        "ORB": 0.6,
+        "FREAK": 0.9
     }
 }
