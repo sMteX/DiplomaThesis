@@ -385,4 +385,41 @@ plotTwinAxesTwinData(leftData=data.DATA_640x480_SMALL["descriptorPartSize"],
                      rightLegend="Obrázek",
                      filename="640x480_small/descriptorSize.png")
 
+print("Generating 640x480 charts")
+
+plotSingleAxisSingleData(data=data.DATA_640x480["accuracy"],
+                         yAxisLabel="Přesnost [%]",
+                         yAxisFormatter=PERCENTAGE_FORMATTER,
+                         filename="640x480_large/accuracy.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_640x480["matchingSingle"], ("HOG")),
+                       rightData=cherryPick(data.DATA_640x480["matchingSingle"], ("HOG"), include=False),
+                       leftYAxisLabel="Délka hledání v jednom obrázku (HOG) [ms]",
+                       rightYAxisLabel="Délka hledání v jednom obrázku [ms]",
+                       filename="640x480_large/matching.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_640x480["partProcess"], ("HOG")),
+                       rightData=cherryPick(data.DATA_640x480["partProcess"], ("HOG"), include=False),
+                       leftYAxisLabel="Délka zpracování celé části (HOG) [ms]",
+                       rightYAxisLabel="Délka zpracování celé části [ms]",
+                       filename="640x480_large/partProcess.png")
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_640x480["totalTime"], ("HOG")),
+                       rightData=cherryPick(data.DATA_640x480["totalTime"], ("HOG"), include=False),
+                       leftYAxisLabel="Celkový čas (HOG) [s]",
+                       rightYAxisLabel="Celkový čas [s]",
+                       leftYAxisFormatter=SECOND_FORMATTER,
+                       rightYAxisFormatter=SECOND_FORMATTER,
+                       filename="640x480_large/totalTime.png")
+plotTwinAxesTwinData(leftData=data.DATA_640x480["descriptorPart"],
+                     rightData=data.DATA_640x480["descriptorImage"],
+                     leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
+                     rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
+                     filename="640x480_large/descriptor.png")
+plotTwinAxesTwinData(leftData=data.DATA_640x480["descriptorPartSize"],
+                     rightData=data.DATA_640x480["descriptorImageSize"],
+                     leftYAxisLabel="Velikost deskriptoru části",
+                     rightYAxisLabel="Velikost deskriptoru obrázku",
+                     leftLegend="Část",
+                     rightLegend="Obrázek",
+                     filename="640x480_large/descriptorSize.png")
 print("Done!")

@@ -32,8 +32,7 @@ print(f"({strftime('%H:%M:%S')}) Started")
 for a in algorithms:
     print(f"({strftime('%H:%M:%S')}) Algorithm: {a.name}")
     if a.name == "HOG":
-        # print("Get yourself a cup of coffee, this will take almost an hour")
-        print("Brace yourself, shitstorm is coming")
+        print("Seriously, just go to sleep, let it munch this one over night...")
     for i in range(10):
         print(f"({strftime('%H:%M:%S')}) - Iteration {i + 1}")
         obj = a.type(parts=fromDirectory(partsDir), images=fromDirectory(originalDir))

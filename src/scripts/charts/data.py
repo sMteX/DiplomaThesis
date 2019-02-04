@@ -168,7 +168,7 @@ DATA_LARGE = {
     }
 }
 
-# 300x300, 75 images, 50 parts, 10 iterations, averaged
+# 640x480, 15 images, 10 parts, 10 iterations, averaged
 DATA_640x480_SMALL = {
     "totalTime": {
         "HOG": 123831.745,
@@ -250,5 +250,91 @@ DATA_640x480_SMALL = {
         "BRIEF": 0.7,
         "ORB": 0.6,
         "FREAK": 0.9
+    }
+}
+
+
+# 640x480, 75 images, 50 parts, 10 iterations, averaged
+DATA_640x480 = {
+    "totalTime": {
+        "HOG": 2536846.987,
+        "FT": 123416.712,
+        "SIFT": 26344.931,
+        "SURF": 19514.385,
+        "BRIEF": 73447.823,
+        "ORB": 4070.078,
+        "FREAK": 97340.331
+    },
+    "descriptorPart": {
+        "HOG": 1.144,
+        "FT": 2.124,
+        "SIFT": 12.195,
+        "SURF": 5.566,
+        "BRIEF": 1.833,
+        "ORB": 1.809,
+        "FREAK": 3.853
+    },
+    "descriptorImage": {
+        "HOG": 18.135,
+        "FT": 23.884,
+        "SIFT": 137.616,
+        "SURF": 80.227,
+        "BRIEF": 20.751,
+        "ORB": 9.441,
+        "FREAK": 49.467
+    },
+    "matchingSingle": {
+        "HOG": 676.099,
+        "FT": 32.396,
+        "SIFT": 4.101,
+        "SURF": 3.517,
+        "BRIEF": 21.748,
+        "ORB": 1.033,
+        "FREAK": 24.904
+    },
+    "matchingAll": {
+        "HOG": 50707.710,
+        "FT": 2429.873,
+        "SIFT": 307.720,
+        "SURF": 263.903,
+        "BRIEF": 1631.235,
+        "ORB": 77.607,
+        "FREAK": 1867.974
+    },
+    "partProcess": {
+        "HOG": 50709.063,
+        "FT": 2432.070,
+        "SIFT": 320.039,
+        "SURF": 269.559,
+        "BRIEF": 1633.155,
+        "ORB": 79.505,
+        "FREAK": 1871.915
+    },
+    "descriptorPartSize": {
+        "HOG": 55635.84,
+        "FT": 436.58,
+        "SIFT": 21667.84,
+        "SURF": 11822.08,
+        "BRIEF": 13630.55,
+        "ORB": 5755.43,
+        "FREAK": 27358.72
+    },
+    "descriptorImageSize": {
+        "HOG": 681156.00,
+        "FT": 4941.00,
+        "SIFT": 184130.56,
+        "SURF": 121920.85,
+        "BRIEF": 159515.31,
+        "ORB": 15336.11,
+        "FREAK": 328735.57
+    },
+    "accuracy": {
+        "HOG": 1,
+        "FT": 1,
+        "SIFT": 0.98,
+        "SURF": 1,
+        "BRIEF": 0.88,
+        "ORB": 0.68,
+        "FREAK": 0.98
     }
 }

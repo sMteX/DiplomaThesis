@@ -56,7 +56,7 @@ for a, ad in parsedData.items():
 
 print("processed")
 
-wb = xlsxwriter.Workbook('gatheredData640x480.xlsx')
+wb = xlsxwriter.Workbook('gatheredData640x480large.xlsx')
 s = wb.add_worksheet()
 
 for cellName, value in excelData:
