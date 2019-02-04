@@ -209,6 +209,102 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
     if not filename is None:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 
+# assume data has same amount of items (same algorithms, different data)
+# and none of them are empty
+
+# possible settings (kwargs):
+# required:
+#   leftYAxisLabel - string
+#   rightYAxisLabel - string
+#   leftLegend - array of strings
+#   rightLegend - array of strings
+# optional:
+#   leftYAxisFormatter
+#   rightYAxisFormatter
+#   title - string
+def plotTwinAxesData(leftData, rightData, filename=None, show=False, **settings):
+    hatches = ["/", "\\", "+", "x", "o", ".", "*"]
+    # (left|right)Data are arrays of arrays of values (arrays of data sets)
+    # (left|right)Legend are arrays of strings
+    _checkSettings(settings, ["leftYAxisLabel", "rightYAxisLabel", "leftLegend", "rightLegend"])
+    fig, left = plt.subplots(figsize=PICTURE_SIZE)
+
+    right = left.twinx()
+
+    mapValuesToList = lambda data: list(data.values())
+
+    labels = list(leftData[0].keys())
+    leftValues = list(map(mapValuesToList, leftData))
+    rightValues = list(map(mapValuesToList, rightData))
+
+    barWidth = 0.8 / (len(leftValues) + len(rightValues))
+
+    index = np.arange(len(labels), dtype=np.float64)
+
+    if "title" in settings:
+        left.set_title(settings["title"], fontsize="x-large")
+
+    left.set_xlabel("Algoritmus")
+    left.xaxis.label.set_fontsize("x-large")
+    left.set_xticks(index)
+    left.set_xticklabels(labels)
+    for tick in left.get_xticklabels():
+        tick.set_fontsize("large")
+
+    left.set_ylabel(settings["leftYAxisLabel"])
+    if len(settings["leftYAxisLabel"]) <= 30:
+        left.yaxis.label.set_fontsize("x-large")
+    else:
+        left.yaxis.label.set_fontsize("large")
+    if "leftYAxisFormatter" in settings:
+        left.yaxis.set_major_formatter(FuncFormatter(settings["leftYAxisFormatter"]))
+
+    right.set_ylabel(settings["rightYAxisLabel"])
+    if len(settings["rightYAxisLabel"]) <= 30:
+        right.yaxis.label.set_fontsize("x-large")
+    else:
+        right.yaxis.label.set_fontsize("large")
+    if "rightYAxisFormatter" in settings:
+        right.yaxis.set_major_formatter(FuncFormatter(settings["rightYAxisFormatter"]))
+
+    data = [
+        # { "x", "y", "axis", "hatch" }
+    ]
+
+    # first, add all data on respective axis, on same "x" spots (no offsets yet)
+    data += list(map(lambda data: {"x": index, "y": data, "axis": left}, leftValues))
+    data += list(map(lambda data: {"x": index, "y": data, "axis": right}, rightValues))
+
+    # second, add hatches
+    for i, item in enumerate(data):
+        if i == 0:
+            # first data set doesn't get hatch
+            item["hatch"] = None # try this
+        else:
+            # not safe in general, works for <= 8 datasets in total
+            item["hatch"] = hatches[i - 1]
+
+    # third, shift data on x axis
+    hW = barWidth / 2
+
+    limit = len(data) - 1
+    shifts = [hW * i for i in range(-limit, len(data), 2)]
+    for i, d in enumerate(data):
+        d["x"] = d["x"] + shifts[i]
+
+    bars = []
+    for d in data:
+        bars.append(d["axis"].bar(d["x"], d["y"], barWidth, color=COLORS, hatch=d["hatch"], edgecolor="black"))
+
+    plt.legend(bars, settings["leftLegend"] + settings["rightLegend"])
+    plt.grid(True, axis="y")
+
+    top = TOP_MARGIN_TITLE if "title" in settings else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
+    if show:
+        plt.show()
+    if not filename is None:
+        plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
 # def testQuadrupleYAxis():
 #     COLORS2 = ["r", "g", "b", "c", "m", "y", "k"]
 #     def make_patch_spines_invisible(ax):
@@ -271,6 +367,27 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
 
 def cherryPick(dictionary, keys, include=True):
     return { key: dictionary[key] for key in dictionary.keys() if (key in keys) == include}
+
+
+# plotTwinAxesData(leftData=[
+#                      data.DATA_LARGE["descriptorPartSize"],
+#                      data.DATA_640x480["descriptorPartSize"]
+#                  ],
+#                  rightData=[
+#                      data.DATA_LARGE["descriptorImageSize"],
+#                      data.DATA_640x480["descriptorImageSize"]
+#                  ],
+#                  leftYAxisLabel="Velikost deskriptoru části",
+#                  rightYAxisLabel="Velikost deskriptoru obrázku",
+#                  leftLegend=[
+#                      "Část (300x300)",
+#                      "Část (640x480)"
+#                  ],
+#                  rightLegend=[
+#                      "Obrázek (300x300)",
+#                      "Obrázek (640x480)"
+#                  ],
+#                  filename="test.png")
 
 print("Generating charts...")
 
