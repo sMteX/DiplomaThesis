@@ -260,7 +260,6 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
 #   rightYAxisFormatter
 #   title - string
 def plotTwinAxesData(leftData, rightData, filename=None, show=False, **settings):
-    hatches = ["/", "\\", "+", "x", "o", ".", "*"]
     # (left|right)Data are arrays of arrays of values (arrays of data sets)
     # (left|right)Legend are arrays of strings
     _checkSettings(settings, ["leftYAxisLabel", "rightYAxisLabel", "leftLegend", "rightLegend"])

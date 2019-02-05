@@ -10,10 +10,12 @@ from src.scripts.algorithms.BRIEF import BRIEF
 from src.scripts.algorithms.ORB import ORB
 from src.scripts.algorithms.FREAK import FREAK
 
+size = "1280x720"
+
 imagesDir = "../../data/images"
-partsDir = f"{imagesDir}/testing/parts/640x480"
-originalDir = f"{imagesDir}/original/640x480"
-outputDir = f"{imagesDir}/testing/output/640x480"
+partsDir = f"{imagesDir}/testing/parts/{size}"
+originalDir = f"{imagesDir}/original/{size}"
+outputDir = f"{imagesDir}/testing/output/{size}"
 
 Algorithm = namedtuple("Algorithm", "name type output")
 
@@ -31,8 +33,15 @@ print(f"({strftime('%H:%M:%S')}) Started")
 
 for a in algorithms:
     print(f"({strftime('%H:%M:%S')}) Algorithm: {a.name}")
-    if a.name == "HOG":
-        print("Seriously, just go to sleep, let it munch this one over night...")
+    if a.name == "HOG" and size == "1280x720":
+        # with the setting that's in place for HOG (and changing it to make HOG better wouldn't be fair?)
+        # it's doing ENORMOUS amount of descriptor comparisons per part and image for 1280x720
+        # I've run some tests to figure out why it can't finish a single iteration in 4+ hours, and turns out
+        # it's doing MILLIONS of comparisons for each part (actually 2 593 221 on average)..
+        # and even though calculating the np.linalg.norm() takes around 0.2ms on average,
+        # that still means an average of around 8.64 minutes per part => 432 minutes per iteration (7 hours 12 minutes)
+        # and I'd need 10 of those - NOPE
+        continue
     for i in range(10):
         print(f"({strftime('%H:%M:%S')}) - Iteration {i + 1}")
         obj = a.type(parts=fromDirectory(partsDir), images=fromDirectory(originalDir))
