@@ -2,12 +2,50 @@ import os
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from matplotlib.colors import hsv_to_rgb
 from matplotlib.ticker import FuncFormatter
 import src.scripts.charts.data as data
 
 OUTPUT_DIR = "./output"
 
+# taken from Wikipedia
+def toHSV(h, s, l):
+    _h = h
+    _v = l + s * min(l, 1 - l)
+    if _v == 0:
+        return _h, 0, _v
+    else:
+        return _h, 2 - (2 * l) / _v, _v
+
+def getLValues(count):
+    _min = 0.2
+    _max = 0.9
+    step = (_max - _min) / count / 2
+    return np.arange(_min + step, _max, 2 * step)
+
+def getColors(colors, count):
+    LValues = getLValues(count)
+    # for each L, return colors with given L, return array of arrays of colors (corresponding to different datasets)
+    result = []
+    for L in LValues:
+        temp = []
+        for c in colors:
+            h, s = c
+            temp.append(hsv_to_rgb(toHSV(h, s, L)))
+        result.append(temp)
+    return result
+
 COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
+# "HSL" values, missing the L (that gets calculated based on data count)
+COLORS_HS = [
+    (0.833, 1),
+    (0, 1),
+    (0.083, 1),
+    (0.1416, 1),
+    (0.333, 1),
+    (0.5861, 1),
+    (0.75, 1)
+]
 
 PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
 SECOND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
@@ -195,7 +233,6 @@ def plotTwinAxesTwinData(leftData, rightData, filename=None, show=False, **setti
     if "rightYAxisFormatter" in settings:
         right.yaxis.set_major_formatter(FuncFormatter(settings["rightYAxisFormatter"]))
 
-
     l1 = left.bar(index - barWidth / 2, leftValues, barWidth, color=COLORS, edgecolor="black")
     l2 = right.bar(index + barWidth / 2, rightValues, barWidth, color=COLORS, hatch="x", edgecolor="black")
 
@@ -292,9 +329,10 @@ def plotTwinAxesData(leftData, rightData, filename=None, show=False, **settings)
     for i, d in enumerate(data):
         d["x"] = d["x"] + shifts[i]
 
+    colors = getColors(COLORS_HS, len(data))
     bars = []
-    for d in data:
-        bars.append(d["axis"].bar(d["x"], d["y"], barWidth, color=COLORS, hatch=d["hatch"], edgecolor="black"))
+    for i, d in enumerate(data):
+        bars.append(d["axis"].bar(d["x"], d["y"], barWidth, color=colors[i], edgecolor="black"))
 
     plt.legend(bars, settings["leftLegend"] + settings["rightLegend"])
     plt.grid(True, axis="y")
@@ -370,15 +408,15 @@ def cherryPick(dictionary, keys, include=True):
 
 
 # plotTwinAxesData(leftData=[
-#                      data.DATA_LARGE["descriptorPartSize"],
-#                      data.DATA_640x480["descriptorPartSize"]
+#                      data.DATA_LARGE["descriptorPart"],
+#                      data.DATA_640x480["descriptorPart"]
 #                  ],
 #                  rightData=[
-#                      data.DATA_LARGE["descriptorImageSize"],
-#                      data.DATA_640x480["descriptorImageSize"]
+#                      data.DATA_LARGE["descriptorImage"],
+#                      data.DATA_640x480["descriptorImage"]
 #                  ],
-#                  leftYAxisLabel="Velikost deskriptoru části",
-#                  rightYAxisLabel="Velikost deskriptoru obrázku",
+#                  leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
+#                  rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
 #                  leftLegend=[
 #                      "Část (300x300)",
 #                      "Část (640x480)"
@@ -387,7 +425,7 @@ def cherryPick(dictionary, keys, include=True):
 #                      "Obrázek (300x300)",
 #                      "Obrázek (640x480)"
 #                  ],
-#                  filename="test.png")
+#                  filename="test2.png")
 
 print("Generating charts...")
 
