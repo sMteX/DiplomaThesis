@@ -304,23 +304,14 @@ def plotTwinAxesData(leftData, rightData, filename=None, show=False, **settings)
         right.yaxis.set_major_formatter(FuncFormatter(settings["rightYAxisFormatter"]))
 
     data = [
-        # { "x", "y", "axis", "hatch" }
+        # { "x", "y", "axis" }
     ]
 
     # first, add all data on respective axis, on same "x" spots (no offsets yet)
     data += list(map(lambda data: {"x": index, "y": data, "axis": left}, leftValues))
     data += list(map(lambda data: {"x": index, "y": data, "axis": right}, rightValues))
 
-    # second, add hatches
-    for i, item in enumerate(data):
-        if i == 0:
-            # first data set doesn't get hatch
-            item["hatch"] = None # try this
-        else:
-            # not safe in general, works for <= 8 datasets in total
-            item["hatch"] = hatches[i - 1]
-
-    # third, shift data on x axis
+    # second, shift data on x axis
     hW = barWidth / 2
 
     limit = len(data) - 1
