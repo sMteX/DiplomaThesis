@@ -1,0 +1,11 @@
+Total time [ms]: 422815.964
+Average times [ms]:
+    - Descriptor computing for a part: 3.771
+    - Descriptor computing for a image: 71.461
+    - Matching part with individual image: 111.25
+    - Matching part with all images: 8343.973
+    - Processing entire part: 8347.846
+
+Average part descriptor size: 779.2
+Average image descriptor size: 14651.0
+Average subsets in image: 8696.62

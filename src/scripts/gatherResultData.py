@@ -5,9 +5,9 @@ import xlsxwriter
 import os
 import re
 
-rootDir = "../../data/images/testing/output/640x480"
+rootDir = "../../data/images/testing/output/1280x720"
 
-folderNames = ["hog", "ft", "sift", "surf", "fast_brief", "orb", "fast_freak"]
+folderNames = ["ft", "sift", "surf", "fast_brief", "orb", "fast_freak"]
 textData = { }
 
 for folder in folderNames:
@@ -56,7 +56,7 @@ for a, ad in parsedData.items():
 
 print("processed")
 
-wb = xlsxwriter.Workbook('gatheredData640x480large.xlsx')
+wb = xlsxwriter.Workbook('gatheredData1280x720.xlsx')
 s = wb.add_worksheet()
 
 for cellName, value in excelData:
