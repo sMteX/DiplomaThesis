@@ -58,6 +58,38 @@ def splitIntoXY(data):
     x = list(map(lambda key: algorithmMap[key], keys))
     return np.asarray(x), np.asarray(y)
 
+def setupXAxis(axis):
+    axis.set_xlabel("Algoritmus")
+    axis.xaxis.label.set_fontsize("x-large")
+    axis.set_xticks(list(algorithmMap.values()))
+    axis.set_xticklabels(list(algorithmMap.keys()))
+    for tick in axis.get_xticklabels():
+        tick.set_fontsize("large")
+
+def drawAxisSplitters(*axes, size=0.01):
+    if len(axes) < 2:
+        raise ValueError("Need at least 2 axes")
+    bottom, *middle, upper = axes
+
+    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
+    bottom.plot((-size, size), (1 - size, 1 + size), **kwargs)
+    bottom.plot((1 - size, 1 + size), (1 - size, 1 + size), **kwargs)
+    
+    for mid in middle:
+        kwargs.update(transform=mid.transAxes)
+        mid.plot((-size, size), (1 - size, 1 + size), **kwargs)
+        mid.plot((1 - size, 1 + size), (1 - size, 1 + size), **kwargs)
+        mid.plot((-size, size), (-size, size), **kwargs)
+        mid.plot((1 - size, 1 + size), (-size, size), **kwargs)
+    
+    kwargs.update(transform=upper.transAxes)
+    upper.plot((-size, size), (-size, size), **kwargs)
+    upper.plot((1 - size, 1 + size), (-size, size), **kwargs)
+
+def drawAcross(axes, *args, **kwargs):
+    for axis in axes:
+        axis.bar(*args, **kwargs)
+
 def accuracy(title=False, filename=None, show=False):
     smallX, smallY = splitIntoXY(data.DATA_LARGE["accuracy"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["accuracy"])
@@ -68,12 +100,7 @@ def accuracy(title=False, filename=None, show=False):
     if title:
         axis.set_title("Přesnost algoritmů", fontsize="x-large")
 
-    axis.set_xlabel("Algoritmus")
-    axis.xaxis.label.set_fontsize("x-large")
-    axis.set_xticks(list(algorithmMap.values()))
-    axis.set_xticklabels(list(algorithmMap.keys()))
-    for tick in axis.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(axis)
 
     axis.set_ylabel("Přesnost [%]")
     axis.yaxis.label.set_fontsize("x-large")
@@ -109,12 +136,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
     if title:
         axis.set_title("Délka výpočtu deskriptoru části", fontsize="x-large")
 
-    axis.set_xlabel("Algoritmus")
-    axis.xaxis.label.set_fontsize("x-large")
-    axis.set_xticks(list(algorithmMap.values()))
-    axis.set_xticklabels(list(algorithmMap.keys()))
-    for tick in axis.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(axis)
 
     axis.set_ylabel("Délka výpočtu deskriptoru části [ms]")
     axis.yaxis.label.set_fontsize("x-large")
@@ -149,12 +171,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Délka výpočtu deskriptoru obrázku", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     fig.text(0.07, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
 
@@ -168,29 +185,15 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     hW = barWidth / 2
 
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.1)
@@ -212,12 +215,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
 
     fig.text(0.07, 0.55, "Průměrná velikost deskriptoru části", va="center", rotation="vertical", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     bottom.set_ylim(0, 8000)
     middle.set_ylim(10000, 30000)
@@ -228,32 +226,16 @@ def partDescriptorSize(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
@@ -273,12 +255,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Průměrná velikost deskriptoru obrázku", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     fig.text(0.05, 0.55, "Průměrná velikost deskriptoru obrázku", va="center", rotation="vertical", fontsize="x-large")
 
@@ -291,32 +268,16 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
@@ -336,12 +297,7 @@ def matching(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Délka hledání v jednom obrázku", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
 
@@ -354,31 +310,16 @@ def matching(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d), (1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d), (1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
@@ -398,12 +339,7 @@ def partProcess(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Délka zpracování celé části", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     fig.text(0.07, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="x-large")
 
@@ -416,31 +352,16 @@ def partProcess(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
@@ -462,12 +383,7 @@ def totalTime(title=False, filename=None, show=False):
 
     fig.text(0.07, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="x-large")
 
-    bottom.set_xlabel("Algoritmus")
-    bottom.xaxis.label.set_fontsize("x-large")
-    bottom.set_xticks(list(algorithmMap.values()))
-    bottom.set_xticklabels(list(algorithmMap.keys()))
-    for tick in bottom.get_xticklabels():
-        tick.set_fontsize("large")
+    setupXAxis(bottom)
 
     bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
     middle.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
@@ -482,33 +398,16 @@ def totalTime(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    upper.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle, upper], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
-    d = 0.01
-    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
-    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    kwargs.update(transform=middle.transAxes)
-    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
-    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
-    middle.plot((-d, d), (-d, d), **kwargs)
-    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
-    kwargs.update(transform=upper.transAxes)
-    upper.plot((-d, d), (-d, d), **kwargs)
-    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    drawAxisSplitters(bottom, middle, upper)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
