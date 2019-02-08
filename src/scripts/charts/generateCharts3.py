@@ -38,9 +38,6 @@ def transformMargins(left, right, top, bottom, pictureSize):
         "bottom": bottom / pictureSize[1]
     }
 
-def cherryPick(dictionary, keys, include=True):
-    return { key: dictionary[key] for key in dictionary.keys() if (key in keys) == include}
-
 def pickColors(colors, indexes):
     return [colors[i] for i in indexes]
 
@@ -330,11 +327,9 @@ def imageDescriptorSize(title=False, filename=None, show=False):
         plt.show()
 
 def matching(title=False, filename=None, show=False):
-    hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["matchingSingle"], ["HOG"]))
-    hogMediumX, hogMediumY = splitIntoXY(cherryPick(data.DATA_640x480["matchingSingle"], ["HOG"]))
-    smallX, smallY = splitIntoXY(cherryPick(data.DATA_LARGE["matchingSingle"], ["HOG"], include=False))
-    mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["matchingSingle"], ["HOG"], include=False))
-    largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["matchingSingle"], ["HOG"], include=False))
+    smallX, smallY = splitIntoXY(data.DATA_LARGE["matchingSingle"])
+    mediumX, mediumY = splitIntoXY(data.DATA_640x480["matchingSingle"])
+    largeX, largeY = splitIntoXY(data.DATA_1280x720["matchingSingle"])
 
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
@@ -359,13 +354,11 @@ def matching(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
@@ -396,11 +389,9 @@ def matching(title=False, filename=None, show=False):
         plt.show()
 
 def partProcess(title=False, filename=None, show=False):
-    hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["partProcess"], ["HOG"]))
-    hogMediumX, hogMediumY = splitIntoXY(cherryPick(data.DATA_640x480["partProcess"], ["HOG"]))
-    smallX, smallY = splitIntoXY(cherryPick(data.DATA_LARGE["partProcess"], ["HOG"], include=False))
-    mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["partProcess"], ["HOG"], include=False))
-    largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["partProcess"], ["HOG"], include=False))
+    smallX, smallY = splitIntoXY(data.DATA_LARGE["partProcess"])
+    mediumX, mediumY = splitIntoXY(data.DATA_640x480["partProcess"])
+    largeX, largeY = splitIntoXY(data.DATA_1280x720["partProcess"])
 
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
@@ -425,14 +416,11 @@ def partProcess(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
@@ -463,11 +451,9 @@ def partProcess(title=False, filename=None, show=False):
         plt.show()
 
 def totalTime(title=False, filename=None, show=False):
-    hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["totalTime"], ["HOG"]))
-    hogMediumX, hogMediumY = splitIntoXY(cherryPick(data.DATA_640x480["totalTime"], ["HOG"]))
-    smallX, smallY = splitIntoXY(cherryPick(data.DATA_LARGE["totalTime"], ["HOG"], include=False))
-    mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["totalTime"], ["HOG"], include=False))
-    largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["totalTime"], ["HOG"], include=False))
+    smallX, smallY = splitIntoXY(data.DATA_LARGE["totalTime"])
+    mediumX, mediumY = splitIntoXY(data.DATA_640x480["totalTime"])
+    largeX, largeY = splitIntoXY(data.DATA_1280x720["totalTime"])
 
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
@@ -496,15 +482,12 @@ def totalTime(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    upper.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    upper.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
