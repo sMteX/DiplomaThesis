@@ -266,40 +266,59 @@ def matching(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["matchingSingle"], ["HOG"], include=False))
     largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["matchingSingle"], ["HOG"], include=False))
 
-    fig, left = plt.subplots(figsize=PICTURE_SIZE)
-    right = left.twinx()
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        left.set_title("Délka hledání v jednom obrázku", fontsize="x-large")
+        bottom.set_title("Délka hledání v jednom obrázku", fontsize="x-large")
 
-    left.set_xlabel("Algoritmus")
-    left.xaxis.label.set_fontsize("x-large")
-    left.set_xticks(list(algorithmMap.values()))
-    left.set_xticklabels(list(algorithmMap.keys()))
-    for tick in left.get_xticklabels():
+    bottom.set_xlabel("Algoritmus")
+    bottom.xaxis.label.set_fontsize("x-large")
+    bottom.set_xticks(list(algorithmMap.values()))
+    bottom.set_xticklabels(list(algorithmMap.keys()))
+    for tick in bottom.get_xticklabels():
         tick.set_fontsize("large")
 
-    left.set_ylabel("Délka hledání v jednom obrázku (HOG) [ms]")
-    left.yaxis.label.set_fontsize("x-large")
+    fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
 
-    right.set_ylabel("Délka hledání v jednom obrázku [ms]")
-    right.yaxis.label.set_fontsize("x-large")
-
+    bottom.set_ylim(0, 35)
+    middle.set_ylim(80, 140)
+    middle.xaxis.tick_top()
+    upper.set_ylim(600, 700)
+    upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    left.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    left.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    right.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    right.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    right.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
-    plt.grid(True, axis="y")
+    upper.legend(handles=DEFAULT_LEGEND)
+    bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
+    upper.grid(True, axis="y")
+
+    d = 0.01
+    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
+    bottom.plot((-d, d), (1 - d, 1 + d), **kwargs)
+    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d), (1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    kwargs.update(transform=upper.transAxes)
+    upper.plot((-d, d), (-d, d), **kwargs)
+    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -313,7 +332,7 @@ def partProcess(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["partProcess"], ["HOG"], include=False))
     largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["partProcess"], ["HOG"], include=False))
 
-    fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Délka zpracování celé části", fontsize="x-large")
@@ -327,36 +346,46 @@ def partProcess(title=False, filename=None, show=False):
 
     fig.text(0.07, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="x-large")
 
-    bottom.set_ylim(0, 2500)
-    upper.set_ylim(5000, 52000)
+    bottom.set_ylim(0, 600)
+    middle.set_ylim(1000, 11000)
+    middle.xaxis.tick_top()
+    upper.set_ylim(46000, 52000)
     upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
     bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    upper.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
     bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
-    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
     d = 0.01
     kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
     bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
     bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
     kwargs.update(transform=upper.transAxes)
     upper.plot((-d, d), (-d, d), **kwargs)
     upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.1)
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -370,7 +399,7 @@ def totalTime(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["totalTime"], ["HOG"], include=False))
     largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["totalTime"], ["HOG"], include=False))
 
-    fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Celkový čas", fontsize="x-large")
@@ -385,38 +414,51 @@ def totalTime(title=False, filename=None, show=False):
         tick.set_fontsize("large")
 
     bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
+    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
     upper.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
 
-    bottom.set_ylim(0, 150000)
-    upper.set_ylim(150000, 2600000)
+    bottom.set_ylim(0, 30000)
+    middle.set_ylim(60000, 130000)
+    middle.xaxis.tick_top()
+    upper.set_ylim(250000, 2600000)
     upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
     bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    middle.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
     upper.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
     bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    middle.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
     d = 0.01
     kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
     bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
     bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
     kwargs.update(transform=upper.transAxes)
     upper.plot((-d, d), (-d, d), **kwargs)
     upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.1)
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -428,6 +470,6 @@ def totalTime(title=False, filename=None, show=False):
 # imageDescriptorTime(show=True)
 # partDescriptorSize(show=True)
 # imageDescriptorSize(show=True)
-# matching(show=True)
-# partProcess(filename="partProcess.png")
-# totalTime(filename="totalTime.png")
+matching(filename="matching.png")
+partProcess(filename="partProcess.png")
+totalTime(filename="totalTime.png")
