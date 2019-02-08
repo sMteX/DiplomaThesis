@@ -147,7 +147,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorImage"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorImage"])
 
-    fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Délka výpočtu deskriptoru obrázku", fontsize="x-large")
@@ -161,8 +161,10 @@ def imageDescriptorTime(title=False, filename=None, show=False):
 
     fig.text(0.07, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
 
-    bottom.set_ylim(0, 80)
-    upper.set_ylim(130, 420)
+    bottom.set_ylim(0, 90)
+    middle.set_ylim(100, 275)
+    middle.xaxis.tick_top()
+    upper.set_ylim(380, 460)
     upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
@@ -170,17 +172,25 @@ def imageDescriptorTime(title=False, filename=None, show=False):
 
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
     upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     upper.legend(handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
     upper.grid(True, axis="y")
 
     d = 0.01
     kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
     bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
     bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
     kwargs.update(transform=upper.transAxes)
     upper.plot((-d, d), (-d, d), **kwargs)
     upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
@@ -198,34 +208,58 @@ def partDescriptorSize(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorPartSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorPartSize"])
 
-    fig, axis = plt.subplots(figsize=PICTURE_SIZE)
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        axis.set_title("Průměrná velikost deskriptoru části", fontsize="x-large")
+        bottom.set_title("Průměrná velikost deskriptoru části", fontsize="x-large")
 
-    axis.set_xlabel("Algoritmus")
-    axis.xaxis.label.set_fontsize("x-large")
-    axis.set_xticks(list(algorithmMap.values()))
-    axis.set_xticklabels(list(algorithmMap.keys()))
-    for tick in axis.get_xticklabels():
+    fig.text(0.07, 0.55, "Průměrná velikost deskriptoru části", va="center", rotation="vertical", fontsize="x-large")
+
+    bottom.set_xlabel("Algoritmus")
+    bottom.xaxis.label.set_fontsize("x-large")
+    bottom.set_xticks(list(algorithmMap.values()))
+    bottom.set_xticklabels(list(algorithmMap.keys()))
+    for tick in bottom.get_xticklabels():
         tick.set_fontsize("large")
 
-    axis.set_ylabel("Průměrná velikost deskriptoru části")
-    axis.yaxis.label.set_fontsize("x-large")
-
+    bottom.set_ylim(0, 8000)
+    middle.set_ylim(10000, 30000)
+    middle.xaxis.tick_top()
+    upper.set_ylim(43000, 57000)
+    upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    axis.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
-    plt.grid(True, axis="y")
+    upper.legend(handles=DEFAULT_LEGEND)
+    bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
+    upper.grid(True, axis="y")
+
+    d = 0.01
+    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
+    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    kwargs.update(transform=upper.transAxes)
+    upper.plot((-d, d), (-d, d), **kwargs)
+    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -237,31 +271,55 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorImageSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorImageSize"])
 
-    fig, axis = plt.subplots(figsize=PICTURE_SIZE)
+    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        axis.set_title("Průměrná velikost deskriptoru obrázku", fontsize="x-large")
+        bottom.set_title("Průměrná velikost deskriptoru obrázku", fontsize="x-large")
 
-    axis.set_xlabel("Algoritmus")
-    axis.xaxis.label.set_fontsize("x-large")
-    axis.set_xticks(list(algorithmMap.values()))
-    axis.set_xticklabels(list(algorithmMap.keys()))
-    for tick in axis.get_xticklabels():
+    bottom.set_xlabel("Algoritmus")
+    bottom.xaxis.label.set_fontsize("x-large")
+    bottom.set_xticks(list(algorithmMap.values()))
+    bottom.set_xticklabels(list(algorithmMap.keys()))
+    for tick in bottom.get_xticklabels():
         tick.set_fontsize("large")
 
-    axis.set_ylabel("Průměrná velikost deskriptoru obrázku")
-    axis.yaxis.label.set_fontsize("x-large")
+    fig.text(0.05, 0.55, "Průměrná velikost deskriptoru obrázku", va="center", rotation="vertical", fontsize="x-large")
 
+    bottom.set_ylim(0, 125000)
+    middle.set_ylim(155000, 200000)
+    middle.xaxis.tick_top()
+    upper.set_ylim(300000, 900000)
+    upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    axis.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    middle.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    middle.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    upper.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    middle.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
-    plt.grid(True, axis="y")
+    upper.legend(handles=DEFAULT_LEGEND)
+    bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
+    upper.grid(True, axis="y")
+
+    d = 0.01
+    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
+    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=middle.transAxes)
+    middle.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    middle.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    middle.plot((-d, d), (-d, d), **kwargs)
+    middle.plot((1 - d, 1 + d), (-d, d), **kwargs)
+    kwargs.update(transform=upper.transAxes)
+    upper.plot((-d, d), (-d, d), **kwargs)
+    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
