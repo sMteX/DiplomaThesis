@@ -115,7 +115,7 @@ def accuracy(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -150,7 +150,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -188,7 +188,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     drawAcross([bottom, middle], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -230,7 +230,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -272,7 +272,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -314,7 +314,7 @@ def matching(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -356,7 +356,7 @@ def partProcess(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -402,7 +402,7 @@ def totalTime(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND)
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
