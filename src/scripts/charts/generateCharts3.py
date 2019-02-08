@@ -97,10 +97,10 @@ def accuracy(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def partDescriptorTime(title=False, filename=None, show=False):
     smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorPart"])
@@ -136,10 +136,10 @@ def partDescriptorTime(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def imageDescriptorTime(title=False, filename=None, show=False):
     smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorImage"])
@@ -175,10 +175,10 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 
 def partDescriptorSize(title=False, filename=None, show=False):
@@ -215,10 +215,10 @@ def partDescriptorSize(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def imageDescriptorSize(title=False, filename=None, show=False):
     smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorImageSize"])
@@ -254,10 +254,10 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def matching(title=False, filename=None, show=False):
     hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["matchingSingle"], ["HOG"]))
@@ -301,10 +301,10 @@ def matching(title=False, filename=None, show=False):
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def partProcess(title=False, filename=None, show=False):
     hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["partProcess"], ["HOG"]))
@@ -313,53 +313,57 @@ def partProcess(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(cherryPick(data.DATA_640x480["partProcess"], ["HOG"], include=False))
     largeX, largeY = splitIntoXY(cherryPick(data.DATA_1280x720["partProcess"], ["HOG"], include=False))
 
-    fig, left = plt.subplots(figsize=PICTURE_SIZE)
-    right = left.twinx()
+    fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        left.set_title("Délka zpracování celé části", fontsize="x-large")
+        bottom.set_title("Délka zpracování celé části", fontsize="x-large")
 
-    left.set_xlabel("Algoritmus")
-    left.xaxis.label.set_fontsize("x-large")
-    left.set_xticks(list(algorithmMap.values()))
-    left.set_xticklabels(list(algorithmMap.keys()))
-    for tick in left.get_xticklabels():
+    bottom.set_xlabel("Algoritmus")
+    bottom.xaxis.label.set_fontsize("x-large")
+    bottom.set_xticks(list(algorithmMap.values()))
+    bottom.set_xticklabels(list(algorithmMap.keys()))
+    for tick in bottom.get_xticklabels():
         tick.set_fontsize("large")
 
-    left.set_ylabel("Délka zpracování celé části (HOG) [ms]")
-    left.yaxis.label.set_fontsize("x-large")
+    fig.text(0.07, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="x-large")
 
-    right.set_ylabel("Délka zpracování celé části [ms]")
-    right.yaxis.label.set_fontsize("x-large")
-
+    bottom.set_ylim(0, 2500)
+    upper.set_ylim(5000, 52000)
+    upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    left.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
-    left.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
-    right.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    right.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    right.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    bottom.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    upper.bar(hogSmallX - 2 * hW, hogSmallY, barWidth, color=pickColors(COLORS_300x300, hogSmallX), edgecolor="black")
+    bottom.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    upper.bar(hogMediumX, hogMediumY, barWidth, color=pickColors(COLORS_640x480, hogMediumX), edgecolor="black")
+    bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    bottom.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    bottom.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    upper.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(handles=DEFAULT_LEGEND)
-    plt.grid(True, axis="y")
+    upper.legend(handles=DEFAULT_LEGEND)
+    bottom.grid(True, axis="y")
+    upper.grid(True, axis="y")
+
+    d = 0.01
+    kwargs = dict(transform=bottom.transAxes, color="black", clip_on=False)
+    bottom.plot((-d, d),(1 - d, 1 + d), **kwargs)
+    bottom.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+    kwargs.update(transform=upper.transAxes)
+    upper.plot((-d, d), (-d, d), **kwargs)
+    upper.plot((1 - d, 1 + d), (-d, d), **kwargs)
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS))
+    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.1)
 
-    if show:
-        plt.show()
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
 
 def totalTime(title=False, filename=None, show=False):
-    # def make_patch_spines_invisible(ax):
-    #     ax.set_frame_on(True)
-    #     ax.patch.set_visible(False)
-    #     for sp in ax.spines.values():
-    #         sp.set_visible(False)
-
     hogSmallX, hogSmallY = splitIntoXY(cherryPick(data.DATA_LARGE["totalTime"], ["HOG"]))
     hogMediumX, hogMediumY = splitIntoXY(cherryPick(data.DATA_640x480["totalTime"], ["HOG"]))
     smallX, smallY = splitIntoXY(cherryPick(data.DATA_LARGE["totalTime"], ["HOG"], include=False))
@@ -369,10 +373,9 @@ def totalTime(title=False, filename=None, show=False):
     fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Délka zpracování celé části", fontsize="x-large")
+        bottom.set_title("Celkový čas", fontsize="x-large")
 
-    fig.text(0.07, 0.55, "Délka zpracování celé části [s]", va="center", rotation="vertical", fontsize="x-large")
-    bottom.yaxis.label.set_fontsize("x-large")
+    fig.text(0.07, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="x-large")
 
     bottom.set_xlabel("Algoritmus")
     bottom.xaxis.label.set_fontsize("x-large")
@@ -426,5 +429,5 @@ def totalTime(title=False, filename=None, show=False):
 # partDescriptorSize(show=True)
 # imageDescriptorSize(show=True)
 # matching(show=True)
-# partProcess(show=True)
-totalTime(filename="totalTime.png")
+# partProcess(filename="partProcess.png")
+# totalTime(filename="totalTime.png")
