@@ -91,7 +91,7 @@ def drawAcross(axes, *args, **kwargs):
         axis.bar(*args, **kwargs)
 
 def accuracy(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["accuracy"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["accuracy"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["accuracy"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["accuracy"])
     
@@ -127,7 +127,7 @@ def accuracy(title=False, filename=None, show=False):
         plt.show()
 
 def partDescriptorTime(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorPart"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["descriptorPart"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorPart"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorPart"])
 
@@ -162,7 +162,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
         plt.show()
 
 def imageDescriptorTime(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorImage"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["descriptorImage"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorImage"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorImage"])
 
@@ -201,7 +201,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
         plt.show()
 
 def partDescriptorSize(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorPartSize"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["descriptorPartSize"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorPartSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorPartSize"])
 
@@ -243,7 +243,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
         plt.show()
 
 def imageDescriptorSize(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["descriptorImageSize"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["descriptorImageSize"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorImageSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorImageSize"])
 
@@ -282,7 +282,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
         plt.show()
 
 def matching(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["matchingSingle"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["matchingSingle"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["matchingSingle"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["matchingSingle"])
 
@@ -324,7 +324,7 @@ def matching(title=False, filename=None, show=False):
         plt.show()
 
 def partProcess(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["partProcess"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["partProcess"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["partProcess"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["partProcess"])
 
@@ -366,7 +366,7 @@ def partProcess(title=False, filename=None, show=False):
         plt.show()
 
 def totalTime(title=False, filename=None, show=False):
-    smallX, smallY = splitIntoXY(data.DATA_LARGE["totalTime"])
+    smallX, smallY = splitIntoXY(data.DATA_300x300["totalTime"])
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["totalTime"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["totalTime"])
 

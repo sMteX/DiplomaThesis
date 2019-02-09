@@ -141,7 +141,7 @@ class BaseAlgorithm:
     def processParts(self):
         pass
 
-    def writeResults(self, directory, includePart=False):
+    def writeResults(self, target, includePart=False):
         pass
 
     def printResults(self, filename=None):

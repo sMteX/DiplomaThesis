@@ -360,8 +360,8 @@ def plotTwinAxesData(leftData, rightData, filename=None, show=False, **settings)
 #     left2.yaxis.set_ticks_position("left")
 #
 #     labels = getVariableKeys("matchingSingle")
-#     matchingAll = getVariableValues("matchingAll", data.DATA_SINGLE)
-#     matchingSingle = getVariableValues("matchingSingle", data.DATA_SINGLE)
+#     matchingAll = getVariableValues("matchingAll", data.DATA_300x300_SMALL)
+#     matchingSingle = getVariableValues("matchingSingle", data.DATA_300x300_SMALL)
 #
 #     barWidth = 0.35
 #
@@ -398,11 +398,11 @@ def cherryPick(dictionary, keys, include=True):
 
 
 # plotTwinAxesData(leftData=[
-#                      data.DATA_LARGE["descriptorPart"],
+#                      data.DATA_300x300["descriptorPart"],
 #                      data.DATA_640x480["descriptorPart"]
 #                  ],
 #                  rightData=[
-#                      data.DATA_LARGE["descriptorImage"],
+#                      data.DATA_300x300["descriptorImage"],
 #                      data.DATA_640x480["descriptorImage"]
 #                  ],
 #                  leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
@@ -419,34 +419,34 @@ def cherryPick(dictionary, keys, include=True):
 
 print("Generating charts...")
 
-plotSingleAxisSingleData(data=data.DATA_SINGLE["accuracy"],
+plotSingleAxisSingleData(data=data.DATA_300x300_SMALL["accuracy"],
                          yAxisLabel="Přesnost [%]",
                          yAxisFormatter=PERCENTAGE_FORMATTER,
                          filename="single/new/accuracy.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG")),
-                       rightData=cherryPick(data.DATA_SINGLE["matchingSingle"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300_SMALL["matchingSingle"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300_SMALL["matchingSingle"], ("HOG"), include=False),
                        leftYAxisLabel="Délka hledání v jednom obrázku (HOG) [ms]",
                        rightYAxisLabel="Délka hledání v jednom obrázku [ms]",
                        filename="single/new/matching.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["partProcess"], ("HOG")),
-                       rightData=cherryPick(data.DATA_SINGLE["partProcess"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300_SMALL["partProcess"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300_SMALL["partProcess"], ("HOG"), include=False),
                        leftYAxisLabel="Délka zpracování celé části (HOG) [ms]",
                        rightYAxisLabel="Délka zpracování celé části [ms]",
                        filename="single/new/partProcess.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_SINGLE["totalTime"], ("HOG")),
-                       rightData=cherryPick(data.DATA_SINGLE["totalTime"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300_SMALL["totalTime"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300_SMALL["totalTime"], ("HOG"), include=False),
                        leftYAxisLabel="Celkový čas (HOG) [ms]",
                        rightYAxisLabel="Celkový čas [ms]",
                        filename="single/new/totalTime.png")
-plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPart"],
-                     rightData=data.DATA_SINGLE["descriptorImage"],
+plotTwinAxesTwinData(leftData=data.DATA_300x300_SMALL["descriptorPart"],
+                     rightData=data.DATA_300x300_SMALL["descriptorImage"],
                      leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
                      rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
                      leftLegend="Část",
                      rightLegend="Obrázek",
                      filename="single/new/descriptor.png")
-plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPartSize"],
-                     rightData=data.DATA_SINGLE["descriptorImageSize"],
+plotTwinAxesTwinData(leftData=data.DATA_300x300_SMALL["descriptorPartSize"],
+                     rightData=data.DATA_300x300_SMALL["descriptorImageSize"],
                      leftYAxisLabel="Velikost deskriptoru části",
                      rightYAxisLabel="Velikost deskriptoru obrázku",
                      leftLegend="Část",
@@ -455,36 +455,36 @@ plotTwinAxesTwinData(leftData=data.DATA_SINGLE["descriptorPartSize"],
 
 print("Generating NEW charts...")
 
-plotSingleAxisSingleData(data=data.DATA_LARGE["accuracy"],
+plotSingleAxisSingleData(data=data.DATA_300x300["accuracy"],
                          yAxisLabel="Přesnost [%]",
                          yAxisFormatter=PERCENTAGE_FORMATTER,
                          filename="large/accuracy.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG")),
-                       rightData=cherryPick(data.DATA_LARGE["matchingSingle"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300["matchingSingle"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300["matchingSingle"], ("HOG"), include=False),
                        leftYAxisLabel="Délka hledání v jednom obrázku (HOG) [ms]",
                        rightYAxisLabel="Délka hledání v jednom obrázku [ms]",
                        filename="large/matching.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["partProcess"], ("HOG")),
-                       rightData=cherryPick(data.DATA_LARGE["partProcess"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300["partProcess"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300["partProcess"], ("HOG"), include=False),
                        leftYAxisLabel="Délka zpracování celé části (HOG) [ms]",
                        rightYAxisLabel="Délka zpracování celé části [ms]",
                        filename="large/partProcess.png")
-plotTwinAxesSingleData(leftData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG")),
-                       rightData=cherryPick(data.DATA_LARGE["totalTime"], ("HOG"), include=False),
+plotTwinAxesSingleData(leftData=cherryPick(data.DATA_300x300["totalTime"], ("HOG")),
+                       rightData=cherryPick(data.DATA_300x300["totalTime"], ("HOG"), include=False),
                        leftYAxisLabel="Celkový čas (HOG) [s]",
                        rightYAxisLabel="Celkový čas [s]",
                        leftYAxisFormatter=SECOND_FORMATTER,
                        rightYAxisFormatter=SECOND_FORMATTER,
                        filename="large/totalTime.png")
-plotTwinAxesTwinData(leftData=data.DATA_LARGE["descriptorPart"],
-                     rightData=data.DATA_LARGE["descriptorImage"],
+plotTwinAxesTwinData(leftData=data.DATA_300x300["descriptorPart"],
+                     rightData=data.DATA_300x300["descriptorImage"],
                      leftYAxisLabel="Délka výpočtu deskriptoru části [ms]",
                      rightYAxisLabel="Délka výpočtu deskriptoru obrázku [ms]",
                      leftLegend="Část",
                      rightLegend="Obrázek",
                      filename="large/descriptor.png")
-plotTwinAxesTwinData(leftData=data.DATA_LARGE["descriptorPartSize"],
-                     rightData=data.DATA_LARGE["descriptorImageSize"],
+plotTwinAxesTwinData(leftData=data.DATA_300x300["descriptorPartSize"],
+                     rightData=data.DATA_300x300["descriptorImageSize"],
                      leftYAxisLabel="Velikost deskriptoru části",
                      rightYAxisLabel="Velikost deskriptoru obrázku",
                      leftLegend="Část",

@@ -78,10 +78,10 @@ VARIABLES = [
 ]
 COLORS = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
 
-def getVariableValues(variableName, dataset = data.DATA_SINGLE):
+def getVariableValues(variableName, dataset = data.DATA_300x300_SMALL):
     return list(dataset[variableName].values())
 
-def getVariableKeys(variableName, dataset = data.DATA_SINGLE):
+def getVariableKeys(variableName, dataset = data.DATA_300x300_SMALL):
     return list(dataset[variableName].keys())
 
 def plotAndSave(dataset, variableName, filename=None, show=False):
@@ -175,8 +175,8 @@ def testQuadrupleYAxis():
     left2.yaxis.set_ticks_position("left")
 
     labels = getVariableKeys("matchingSingle")
-    matchingAll = getVariableValues("matchingAll", data.DATA_SINGLE)
-    matchingSingle = getVariableValues("matchingSingle", data.DATA_SINGLE)
+    matchingAll = getVariableValues("matchingAll", data.DATA_300x300_SMALL)
+    matchingSingle = getVariableValues("matchingSingle", data.DATA_300x300_SMALL)
 
     barWidth = 0.35
 
@@ -214,8 +214,8 @@ def testTwinAxesTwinData():
     right = left.twinx()
 
     labels = getVariableKeys("descriptorImage")
-    descriptorPart = getVariableValues("descriptorPart", data.DATA_SINGLE)
-    descriptorImage = getVariableValues("descriptorImage", data.DATA_SINGLE)
+    descriptorPart = getVariableValues("descriptorPart", data.DATA_300x300_SMALL)
+    descriptorImage = getVariableValues("descriptorImage", data.DATA_300x300_SMALL)
 
     barWidth = 0.35
 
@@ -239,6 +239,6 @@ def testTwinAxesTwinData():
 # print("Generating charts...")
 #
 # for var in VARIABLES:
-#     plotAndSave(data.DATA_SINGLE, var, f"single/{var}.png")
+#     plotAndSave(data.DATA_300x300_SMALL, var, f"single/{var}.png")
 #
 # print("Done!")

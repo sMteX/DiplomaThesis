@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import os
+from types import LambdaType
 from src.scripts.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
@@ -85,9 +86,10 @@ class BaseHogFT(BaseAlgorithm):
     def getResultPointScale(self) -> object:
         pass
 
-    def writeResults(self, directory, includePart=False):
-        path = os.path.abspath(directory)
+    def writeResults(self, target, includePart=False):
+        isLambda = isinstance(target, LambdaType)
         for i, result in enumerate(self.results):
+            path = os.path.abspath(f"{target}/{i}.jpg") if not isLambda else os.path.abspath(target(i))
             resultImage = result.image.copy()
             resultImage = cv.rectangle(resultImage,
                                        pt1=result.start,
@@ -98,9 +100,9 @@ class BaseHogFT(BaseAlgorithm):
                 out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
                 out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
                 out[0:, result.part.shape[1]:] = resultImage
-                cv.imwrite(f"{path}/{i}.jpg", out)
+                cv.imwrite(path, out)
             else:
-                cv.imwrite(f"{path}/{i}.jpg", resultImage)
+                cv.imwrite(path, resultImage)
 
     def printResults(self, filename=None):
         average = {
