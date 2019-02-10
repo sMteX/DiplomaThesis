@@ -411,6 +411,49 @@ def totalTime(title=False, filename=None, show=False):
     if show:
         plt.show()
 
+def lighting(title=None, filename=None, show=False):
+    def getData():
+        x = []
+        y = []
+        z = []
+        for b, val in data.DATA_LIGHTING_FT.items():
+            for c, acc in val.items():
+                x.append(b)
+                y.append(c)
+                z.append(acc)
+        return np.asarray(x), np.asarray(y), np.asarray(z)
+
+    colorMap = plt.cm.get_cmap("RdYlGn")
+    x, y, z = getData()
+
+    fig, axis = plt.subplots(figsize=PICTURE_SIZE)
+
+    axis.set_ylabel("Kontrast", fontsize="x-large")
+    axis.set_xlabel("Jas", fontsize="x-large")
+    axis.set_ylim([-90, 90])
+    axis.set_xlim([-90, 90])
+    axis.xaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
+    axis.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
+
+    for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
+        tick.set_fontsize("large")
+
+    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, s=40, cmap=colorMap)
+    fig.colorbar(sc, format=FuncFormatter(PERCENTAGE_FORMATTER))
+    for i in range(len(x)):
+        _x = x[i]
+        _y = y[i]
+        acc = z[i]
+        axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 10))
+
+    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
+
+    if filename:
+        plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
+    if show:
+        plt.show()
+
 accuracy(filename="accuracy.png")
 partDescriptorTime(filename="partDescriptorTime.png")
 imageDescriptorTime(filename="imageDescriptorTime.png")
@@ -419,3 +462,4 @@ imageDescriptorSize(filename="imageDescriptorSize.png")
 matching(filename="matching.png")
 partProcess(filename="partProcess.png")
 totalTime(filename="totalTime.png")
+lighting(filename="lighting_ft.png")
