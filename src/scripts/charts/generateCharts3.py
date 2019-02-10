@@ -438,13 +438,13 @@ def lighting(title=None, filename=None, show=False):
     for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
         tick.set_fontsize("large")
 
-    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, s=40, cmap=colorMap)
+    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, s=140, cmap=colorMap)
     fig.colorbar(sc, format=FuncFormatter(PERCENTAGE_FORMATTER))
     for i in range(len(x)):
         _x = x[i]
         _y = y[i]
         acc = z[i]
-        axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 10))
+        axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 13))
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
