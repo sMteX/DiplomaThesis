@@ -17,6 +17,7 @@ class BaseHogFT(BaseAlgorithm):
             self.diagnostics.counts.imageDescriptorSize.append(descriptor.size)
             self.imageData.append({
                 "colorImage": image.colorImage,
+                "path": image.filePath,
                 "descriptor": descriptor
             })
 
@@ -33,6 +34,7 @@ class BaseHogFT(BaseAlgorithm):
             best = {
                 "distance": float("inf"),  # default to +infinity
                 "colorImage": None,
+                "path": None,
                 "sX": -1,
                 "sY": -1,
                 "eX": -1,
@@ -54,6 +56,7 @@ class BaseHogFT(BaseAlgorithm):
                         scaleX, scaleY = self.getResultPointScale()
                         best["distance"] = distance
                         best["colorImage"] = image["colorImage"]
+                        best["path"] = image["path"]
                         best["sX"] = startX * scaleX
                         best["sY"] = startY * scaleY
                         best["eX"] = best["sX"] + partSize[0]
@@ -69,6 +72,8 @@ class BaseHogFT(BaseAlgorithm):
             # noinspection PyTypeChecker
             self.results.append(self.MatchingResult(part=part.colorImage,
                                                     image=best["colorImage"],
+                                                    partPath=part.filePath,
+                                                    imagePath=best["path"],
                                                     start=(best["sX"], best["sY"]),
                                                     end=(best["eX"], best["eY"])))
 

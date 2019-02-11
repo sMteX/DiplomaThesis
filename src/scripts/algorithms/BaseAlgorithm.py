@@ -79,12 +79,16 @@ class BaseAlgorithm:
                      end: (int, int),
                      partKeypoints: List[cv.KeyPoint] = None,
                      imageKeypoints: List[cv.KeyPoint] = None,
-                     topMatches: List[cv.DMatch] = None) -> None:
+                     topMatches: List[cv.DMatch] = None,
+                     partPath: str = None,
+                     imagePath: str = None) -> None:
             self.part = part
             self.image = image
             # rectangle for where the match was found
             self.start = start
             self.end = end
+            self.partPath = partPath
+            self.imagePath = imagePath
             # following variables are used in keypoint-based algorithms
             self.partKeypoints = partKeypoints
             self.imageKeypoints = imageKeypoints

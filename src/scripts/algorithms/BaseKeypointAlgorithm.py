@@ -25,6 +25,7 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             self.diagnostics.counts.imageDescriptorSize.append(descriptors.size)
             self.imageData.append({
                 "colorImage": image.colorImage,
+                "path": image.filePath,
                 "keypoints": keypoints,
                 "descriptors": descriptors
             })
@@ -80,6 +81,8 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
 
             self.results.append(self.MatchingResult(part=part.colorImage,
                                                     image=best["image"]["colorImage"],
+                                                    partPath=part.filePath,
+                                                    imagePath=best["image"]["path"],
                                                     start=(startX, startY),
                                                     end=(endX, endY),
                                                     partKeypoints=partKeypoints,
