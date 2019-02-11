@@ -51,13 +51,14 @@ fn = lambda x: f"+{x} %" if x >= 0 else f"{x} %"
 formatFileName = lambda i, b, c: f"part{i}_b{b}_c{c}.jpg"
 
 print(f"({strftime('%H:%M:%S')}) Started")
-i = 0
-step = 40
-total = float(((160 / 5) + 1)**2)
+j = 0
+step = 5
+total = float(((160 / step) + 1)**2)
+countDict = { b: {c: 0 for c in range(-80, 81, step)} for b in range(-80, 81, step)}
 for b in range(-80, 81, step):
     for c in range(-80, 81, step):
-        i += 1
-        print(f"({strftime('%H:%M:%S')}) ({(100 * i / total):.0f} %) Brightness: {fn(b)}, Contrast: {fn(c)}")
+        j += 1
+        print(f"({strftime('%H:%M:%S')}) ({(100 * j / total):.0f} %) Brightness: {fn(b)}, Contrast: {fn(c)}")
         images = []
         for path in paths:
             img = cv.imread(path)
@@ -69,20 +70,26 @@ for b in range(-80, 81, step):
         for a in algorithms:
             obj = a.type(parts=images, images=fromDirectory(originalDir))
             results = obj.process()
-            obj.writeResults(target=lambda i: f"{a.output}/{formatFileName(i, b, c)}", includePart=True)
 
-            for result in results:
+            for i, result in enumerate(results):
+                _path = None
                 annotatedResult = next(x for x in annotations.matches if x.part == os.path.basename(result.partPath))
                 if annotatedResult is None or os.path.basename(result.imagePath) != annotatedResult.image:
-                    continue
-                _x, _y = result.start
-                distance = math.sqrt((_x - annotatedResult.x)**2 + (_y - annotatedResult.y)**2) # in "pixels"?
-                if distance < 5:
-                    # ok
-                elif distance < 20:
-                    # not sure
-
+                    _path = f"{outputDir}/nope/{formatFileName(i, b, c)}"
+                else:
+                    _x, _y = result.start
+                    distance = math.sqrt((_x - annotatedResult.x)**2 + (_y - annotatedResult.y)**2) # in "pixels"?
+                    if distance < 5:
+                        _path = f"{outputDir}/match/{formatFileName(i, b, c)}"
+                        countDict[b][c] += 1
+                    elif distance < 20:
+                        _path = f"{outputDir}/notSure/{formatFileName(i, b, c)}"
+                    else:
+                        _path = f"{outputDir}/nope/{formatFileName(i, b, c)}"
+                obj.writeSingleResult(result, _path, includePart=True)
 
             gc.collect()
 
 print(f"({strftime('%H:%M:%S')}) Ended")
+with open(f"{outputDir}/result.json", "w") as file:
+    json.dump(countDict, file)

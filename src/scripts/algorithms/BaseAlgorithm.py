@@ -148,6 +148,9 @@ class BaseAlgorithm:
     def writeResults(self, target, includePart=False):
         pass
 
+    def writeSingleResult(self, result, path, includePart=False):
+        pass
+
     def printResults(self, filename=None):
         pass
 

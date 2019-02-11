@@ -98,27 +98,31 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
         isLambda = isinstance(target, LambdaType)
         for i, result in enumerate(self.results):
             path = os.path.abspath(f"{target}/{i}.jpg") if not isLambda else os.path.abspath(target(i))
-            resultImage = result.image.copy()
-            resultImage = cv.rectangle(img=resultImage,
-                                       pt1=result.start,
-                                       pt2=result.end,
-                                       color=(0, 0, 255))
-            if self.drawMatches:
-                resultImage = cv.drawMatches(img1=result.part.copy(),
-                                             keypoints1=result.partKeypoints,
-                                             img2=resultImage,
-                                             keypoints2=result.imageKeypoints,
-                                             matches1to2=result.topMatches,
-                                             outImg=resultImage,
-                                             flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
-                cv.imwrite(path, resultImage)
-            elif includePart:
-                out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
-                out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
-                out[0:, result.part.shape[1]:] = resultImage
-                cv.imwrite(path, out)
-            else:
-                cv.imwrite(path, resultImage)
+            self.writeSingleResult(result, path, includePart)
+
+    def writeSingleResult(self, result, path, includePart=False):
+        path = os.path.abspath(path)
+        resultImage = result.image.copy()
+        resultImage = cv.rectangle(img=resultImage,
+                                   pt1=result.start,
+                                   pt2=result.end,
+                                   color=(0, 0, 255))
+        if self.drawMatches:
+            resultImage = cv.drawMatches(img1=result.part.copy(),
+                                         keypoints1=result.partKeypoints,
+                                         img2=resultImage,
+                                         keypoints2=result.imageKeypoints,
+                                         matches1to2=result.topMatches,
+                                         outImg=resultImage,
+                                         flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
+            cv.imwrite(path, resultImage)
+        elif includePart:
+            out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
+            out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
+            out[0:, result.part.shape[1]:] = resultImage
+            cv.imwrite(path, out)
+        else:
+            cv.imwrite(path, resultImage)
 
     def printResults(self, filename=None):
         average = {
