@@ -91,5 +91,7 @@ for b in range(-80, 81, step):
             gc.collect()
 
 print(f"({strftime('%H:%M:%S')}) Ended")
+# generates a json file with the dictionary
+# this needs to be manually checked and results from notSure folder that are correct have to be added into the result.json
 with open(f"{outputDir}/result.json", "w") as file:
     json.dump(countDict, file)
