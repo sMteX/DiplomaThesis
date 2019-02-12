@@ -417,7 +417,7 @@ def lighting(title=None, filename=None, show=False):
         x = []
         y = []
         z = []
-        for b, val in data.DATA_LIGHTING_FT.items():
+        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
             for c, acc in val.items():
                 x.append(b)
                 y.append(c)
@@ -460,7 +460,7 @@ def lightingContour(interpolated=False, showOriginal=False, title=None, filename
         x = []
         y = []
         z = []
-        for b, val in data.DATA_LIGHTING_FT.items():
+        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
             for c, acc in val.items():
                 x.append(b)
                 y.append(c)
@@ -485,7 +485,7 @@ def lightingContour(interpolated=False, showOriginal=False, title=None, filename
         for b in range(-80, 81, 20):
             for c in range(-80, 81, 20):
                 points.append((b, c))
-                values.append(data.DATA_LIGHTING_FT[b][c])
+                values.append(data.DATA_LIGHTING_FT_SMALL[b][c])
 
         grid_x, grid_y = np.mgrid[-80:80:33j, -80:80:33j]
         grid = griddata(np.asarray(points, dtype=np.float), np.asarray(values, dtype=np.float), (grid_x, grid_y), method='cubic')
@@ -494,12 +494,12 @@ def lightingContour(interpolated=False, showOriginal=False, title=None, filename
         # axis.scatter(grid_x, grid_y, c=grid, cmap=colorMap)
         fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
     else:
-        X = np.asarray(list(data.DATA_LIGHTING_FT.keys()))
-        Y = np.asarray(list(data.DATA_LIGHTING_FT[0].keys()))
+        X = np.asarray(list(data.DATA_LIGHTING_FT_SMALL.keys()))
+        Y = np.asarray(list(data.DATA_LIGHTING_FT_SMALL[0].keys()))
         Z = np.empty((9, 9), dtype=np.float)
 
         i = 0
-        for b, val in data.DATA_LIGHTING_FT.items():
+        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
             j = 0
             for c, a in val.items():
                 Z[j, i] = a
