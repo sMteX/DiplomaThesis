@@ -469,7 +469,7 @@ def lightingContour(data, interpolated=False, showOriginal=False, title=None, fi
                 z.append(acc)
         return np.asarray(x), np.asarray(y), np.asarray(z)
 
-    colorMap = plt.cm.get_cmap("RdYlGn")
+    colorMap = plt.cm.get_cmap("viridis")
 
     fig, axis = plt.subplots(figsize=PICTURE_SIZE)
 
@@ -519,7 +519,7 @@ def lightingContour(data, interpolated=False, showOriginal=False, title=None, fi
         axis.scatter(_x, _y, c=_z, cmap=colorMap, edgecolor="black")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.grid(True, color="black", alpha=0.5)
+    plt.grid(True, color="black", alpha=0.75)
     plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
 
     if filename:
@@ -536,4 +536,4 @@ matching(filename="matching.png")
 partProcess(filename="partProcess.png")
 totalTime(filename="totalTime.png")
 # lighting(data=data.DATA_LIGHTING_FT, show=True)
-lightingContour(data=data.DATA_LIGHTING_FT, interpolated=False, showOriginal=False, filename="ftLighting.png")
+lightingContour(data=data.DATA_LIGHTING_FT, filename="ftLighting_viridis.png")
