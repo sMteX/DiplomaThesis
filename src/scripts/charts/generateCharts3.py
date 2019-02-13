@@ -412,12 +412,12 @@ def totalTime(title=False, filename=None, show=False):
     if show:
         plt.show()
 
-def lighting(title=None, filename=None, show=False):
-    def getData():
+def lighting(data, annotate=False, title=None, filename=None, show=False):
+    def getData(data):
         x = []
         y = []
         z = []
-        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
+        for b, val in data.items():
             for c, acc in val.items():
                 x.append(b)
                 y.append(c)
@@ -425,7 +425,7 @@ def lighting(title=None, filename=None, show=False):
         return np.asarray(x), np.asarray(y), np.asarray(z)
 
     colorMap = plt.cm.get_cmap("RdYlGn")
-    x, y, z = getData()
+    x, y, z = getData(data)
 
     fig, axis = plt.subplots(figsize=PICTURE_SIZE)
 
@@ -439,13 +439,15 @@ def lighting(title=None, filename=None, show=False):
     for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
         tick.set_fontsize("large")
 
-    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, s=140, cmap=colorMap)
+    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, cmap=colorMap)
     fig.colorbar(sc, format=FuncFormatter(PERCENTAGE_FORMATTER))
-    for i in range(len(x)):
-        _x = x[i]
-        _y = y[i]
-        acc = z[i]
-        axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 13))
+
+    if annotate:
+        for i in range(len(x)):
+            _x = x[i]
+            _y = y[i]
+            acc = z[i]
+            axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 13))
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
@@ -455,12 +457,12 @@ def lighting(title=None, filename=None, show=False):
     if show:
         plt.show()
 
-def lightingContour(interpolated=False, showOriginal=False, title=None, filename=None, show=False):
-    def getData():
+def lightingContour(data, interpolated=False, showOriginal=False, title=None, filename=None, show=False):
+    def getData(data):
         x = []
         y = []
         z = []
-        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
+        for b, val in data.items():
             for c, acc in val.items():
                 x.append(b)
                 y.append(c)
@@ -473,8 +475,10 @@ def lightingContour(interpolated=False, showOriginal=False, title=None, filename
 
     axis.set_ylabel("Kontrast", fontsize="x-large")
     axis.set_xlabel("Jas", fontsize="x-large")
-    axis.xaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
-    axis.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
+
+    formatter = lambda y, _: f"{y:.0f} %" if y < 0 else (f"{y:.0f} %" if y == 0 else f"+{y:.0f} %")
+    axis.xaxis.set_major_formatter(FuncFormatter(formatter))
+    axis.yaxis.set_major_formatter(FuncFormatter(formatter))
 
     for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
         tick.set_fontsize("large")
@@ -482,38 +486,40 @@ def lightingContour(interpolated=False, showOriginal=False, title=None, filename
     if interpolated:
         points = []
         values = []
-        for b in range(-80, 81, 20):
-            for c in range(-80, 81, 20):
+        for b, vals in data.items():
+            for c, value in vals.items():
                 points.append((b, c))
-                values.append(data.DATA_LIGHTING_FT_SMALL[b][c])
+                values.append(value)
 
-        grid_x, grid_y = np.mgrid[-80:80:33j, -80:80:33j]
+        grid_x, grid_y = np.mgrid[-80:80:80j, -80:80:80j]
         grid = griddata(np.asarray(points, dtype=np.float), np.asarray(values, dtype=np.float), (grid_x, grid_y), method='cubic')
         grid = np.clip(grid, 0, 1)
-        cont = axis.contourf(grid_x, grid_y, grid, cmap=colorMap)
-        # axis.scatter(grid_x, grid_y, c=grid, cmap=colorMap)
-        fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
+        cont = axis.contourf(grid_x, grid_y, grid, levels=10, cmap=colorMap)
+        colorBar = fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
+        colorBar.set_label("Přesnost [%]", fontsize="x-large")
     else:
-        X = np.asarray(list(data.DATA_LIGHTING_FT_SMALL.keys()))
-        Y = np.asarray(list(data.DATA_LIGHTING_FT_SMALL[0].keys()))
-        Z = np.empty((9, 9), dtype=np.float)
+        X = np.asarray(list(data.keys()))
+        Y = np.asarray(list(data[0].keys()))
+        Z = np.empty((len(Y), len(X)), dtype=np.float)
 
         i = 0
-        for b, val in data.DATA_LIGHTING_FT_SMALL.items():
+        for b, val in data.items():
             j = 0
             for c, a in val.items():
                 Z[j, i] = a
                 j += 1
             i += 1
 
-        cont = axis.contourf(X, Y, Z, cmap=colorMap)
-        fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
+        cont = axis.contourf(X, Y, Z, levels=10, cmap=colorMap)
+        colorBar = fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
+        colorBar.set_label("Přesnost [%]", fontsize="x-large")
 
     if showOriginal:
-        _x, _y, _z = getData()
+        _x, _y, _z = getData(data)
         axis.scatter(_x, _y, c=_z, cmap=colorMap, edgecolor="black")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.grid(True, color="black", alpha=0.5)
     plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
 
     if filename:
@@ -529,5 +535,5 @@ imageDescriptorSize(filename="imageDescriptorSize.png")
 matching(filename="matching.png")
 partProcess(filename="partProcess.png")
 totalTime(filename="totalTime.png")
-lighting(show=True)
-lightingContour(interpolated=True, showOriginal=True, show=True)
+# lighting(data=data.DATA_LIGHTING_FT, show=True)
+lightingContour(data=data.DATA_LIGHTING_FT, interpolated=False, showOriginal=False, filename="ftLighting.png")
