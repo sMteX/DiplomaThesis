@@ -101,3 +101,31 @@ ENV/
 .mypy_cache/
 
 .idea/
+
+# ignore all images (usually experiment results)
+*.jpg
+*.png
+
+# exceptions
+# ----------
+
+# original images
+!data/images/original/**/*.jpg
+
+# parts
+!data/images/testing/parts/**/*.jpg
+
+# examples of matched images for each algorithm and size (just 1st iteration)
+!data/images/testing/output/300x300/**/0/*.jpg
+!data/images/testing/output/640x480/**/0/*.jpg
+!data/images/testing/output/1280x720/**/0/*.jpg
+
+# example of small FT lighting test result
+!data/images/testing/output/lighting1/part0/*.jpg
+
+# old results from small 300x300 dataset
+!data/images/testing/output/old_single/**/*.jpg
+
+# all generated charts
+!src/scripts/charts/**/*.jpg
+!src/scripts/charts/**/*.png

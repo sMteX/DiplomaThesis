@@ -18,7 +18,7 @@ size = "300x300"
 imagesDir = "../../data/images"
 partsDir = f"{imagesDir}/testing/parts/{size}"
 originalDir = f"{imagesDir}/original/{size}"
-outputDir = f"{imagesDir}/testing/output/lighting"
+outputDir = f"{imagesDir}/testing/output/lighting1"
 
 Algorithm = namedtuple("Algorithm", "name type output")
 
