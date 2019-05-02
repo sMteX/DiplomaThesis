@@ -1,13 +1,16 @@
 import os
 import numpy as np
 import math
+import matplotlib
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 import src.scripts.charts.data as data
 
-OUTPUT_DIR = "./output/allSizesNew"
+OUTPUT_DIR = "./output/allSizesNewLarger"
+# global default font size, font sizes like xx-large are relative to this
+matplotlib.rcParams['font.size'] = 14   # default = 10
 
 # slightly lighter
 COLORS_300x300 = ["#ff23ff", "#ff4c4c", "#ff9e3d", "#ffe44c", "#00e500", "#47a0ff", "#a347ff"]
@@ -22,13 +25,13 @@ DEFAULT_LEGEND = [
     patches.Patch(edgecolor="black", facecolor=COLORS_640x480[0], label="640x480"),
     patches.Patch(edgecolor="black", facecolor=COLORS_1280x720[0], label="1280x720")
 ]
-PICTURE_SIZE = (10, 6)
+PICTURE_SIZE = (12.5, 10)
 DEFAULT_MARGINS = {
-    "left": 1.5,
-    "right": 1.5,
-    "bottom": 0.6
+    "left": 2.3,
+    "right": 2.3,
+    "bottom": 1
 }
-TOP_MARGIN_NO_TITLE = 0.1
+TOP_MARGIN_NO_TITLE = 0.2
 TOP_MARGIN_TITLE = 0.3
 
 def transformMargins(left, right, top, bottom, pictureSize):
@@ -61,11 +64,12 @@ def splitIntoXY(data):
 
 def setupXAxis(axis):
     axis.set_xlabel("Algoritmus")
-    axis.xaxis.label.set_fontsize("x-large")
+    axis.xaxis.label.set_fontsize("xx-large")
+    axis.xaxis.labelpad = 12    # default = 4
     axis.set_xticks(list(algorithmMap.values()))
     axis.set_xticklabels(list(algorithmMap.keys()))
     for tick in axis.get_xticklabels():
-        tick.set_fontsize("large")
+        tick.set_fontsize("x-large")
 
 def drawAxisSplitters(*axes, size=0.01):
     if len(axes) < 2:
@@ -99,13 +103,14 @@ def accuracy(title=False, filename=None, show=False):
     fig, axis = plt.subplots(figsize=PICTURE_SIZE)
     
     if title:
-        axis.set_title("Přesnost algoritmů", fontsize="x-large")
+        axis.set_title("Přesnost algoritmů", fontsize="xx-large")
 
     setupXAxis(axis)
 
     axis.set_ylabel("Přesnost [%]")
-    axis.yaxis.label.set_fontsize("x-large")
-
+    axis.yaxis.label.set_fontsize("xx-large")
+    for tick in axis.get_yticklabels():
+        tick.set_fontsize("x-large")
     axis.yaxis.set_major_formatter(FuncFormatter(PERCENTAGE_FORMATTER))
 
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
@@ -116,7 +121,7 @@ def accuracy(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -135,12 +140,14 @@ def partDescriptorTime(title=False, filename=None, show=False):
     fig, axis = plt.subplots(figsize=PICTURE_SIZE)
 
     if title:
-        axis.set_title("Délka výpočtu deskriptoru části", fontsize="x-large")
+        axis.set_title("Délka výpočtu deskriptoru části", fontsize="xx-large")
 
     setupXAxis(axis)
 
     axis.set_ylabel("Délka výpočtu deskriptoru části [ms]")
-    axis.yaxis.label.set_fontsize("x-large")
+    axis.yaxis.label.set_fontsize("xx-large")
+    for tick in axis.get_yticklabels():
+        tick.set_fontsize("x-large")
     axis.set_ylim(0, 30)
 
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
@@ -151,7 +158,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -170,11 +177,15 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Délka výpočtu deskriptoru obrázku", fontsize="x-large")
+        bottom.set_title("Délka výpočtu deskriptoru obrázku", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.07, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.07, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
+
+    for axis in [bottom, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.set_ylim(0, 85)
     upper.set_ylim(100, 420)
@@ -187,7 +198,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND)
+    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     upper.grid(True, axis="y")
 
@@ -209,11 +220,15 @@ def partDescriptorSize(title=False, filename=None, show=False):
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Průměrná velikost deskriptoru části", fontsize="x-large")
+        bottom.set_title("Průměrná velikost deskriptoru části", fontsize="xx-large")
 
-    fig.text(0.07, 0.55, "Průměrná velikost deskriptoru části", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.06, 0.55, "Průměrná velikost deskriptoru části", va="center", rotation="vertical", fontsize="xx-large")
 
     setupXAxis(bottom)
+
+    for axis in [bottom, middle, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.set_ylim(0, 8000)
     middle.set_ylim(10000, 30000)
@@ -228,7 +243,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -251,11 +266,15 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Průměrná velikost deskriptoru obrázku", fontsize="x-large")
+        bottom.set_title("Průměrná velikost deskriptoru obrázku", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.05, 0.55, "Průměrná velikost deskriptoru obrázku", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.04, 0.55, "Průměrná velikost deskriptoru obrázku", va="center", rotation="vertical", fontsize="xx-large")
+
+    for axis in [bottom, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.set_ylim(0, 200000)
     upper.set_ylim(300000, 900000)
@@ -268,7 +287,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND)
+    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     upper.grid(True, axis="y")
 
@@ -290,11 +309,15 @@ def matching(title=False, filename=None, show=False):
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Délka hledání v jednom obrázku", fontsize="x-large")
+        bottom.set_title("Délka hledání v jednom obrázku", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
+
+    for axis in [bottom, middle, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.set_ylim(0, 40)
     middle.set_ylim(80, 140)
@@ -309,7 +332,7 @@ def matching(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -332,11 +355,15 @@ def partProcess(title=False, filename=None, show=False):
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Délka zpracování celé části", fontsize="x-large")
+        bottom.set_title("Délka zpracování celé části", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.07, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.06, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="xx-large")
+
+    for axis in [bottom, middle, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.set_ylim(0, 600)
     middle.set_ylim(1000, 11000)
@@ -351,7 +378,7 @@ def partProcess(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -374,11 +401,15 @@ def totalTime(title=False, filename=None, show=False):
     fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Celkový čas", fontsize="x-large")
+        bottom.set_title("Celkový čas", fontsize="xx-large")
 
-    fig.text(0.07, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="x-large")
+    fig.text(0.07, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="xx-large")
 
     setupXAxis(bottom)
+
+    for axis in [bottom, middle, upper]:
+        for tick in axis.get_yticklabels():
+            tick.set_fontsize("x-large")
 
     bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
     middle.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
@@ -397,7 +428,7 @@ def totalTime(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND)
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -457,7 +488,7 @@ def lighting(data, annotate=False, title=None, filename=None, show=False):
     if show:
         plt.show()
 
-def lightingContour(data, interpolated=False, showOriginal=False, title=None, filename=None, show=False):
+def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=False, title=None, filename=None, show=False):
     def getData(data):
         x = []
         y = []
@@ -469,19 +500,21 @@ def lightingContour(data, interpolated=False, showOriginal=False, title=None, fi
                 z.append(acc)
         return np.asarray(x), np.asarray(y), np.asarray(z)
 
-    colorMap = plt.cm.get_cmap("viridis")
+    colorMap = plt.cm.get_cmap(colormap)
 
     fig, axis = plt.subplots(figsize=PICTURE_SIZE)
 
-    axis.set_ylabel("Kontrast", fontsize="x-large")
-    axis.set_xlabel("Jas", fontsize="x-large")
+    axis.set_ylabel("Kontrast", fontsize="xx-large")
+    axis.set_xlabel("Jas", fontsize="xx-large")
+    axis.xaxis.labelpad = 12
 
     formatter = lambda y, _: f"{y:.0f} %" if y < 0 else (f"{y:.0f} %" if y == 0 else f"+{y:.0f} %")
     axis.xaxis.set_major_formatter(FuncFormatter(formatter))
     axis.yaxis.set_major_formatter(FuncFormatter(formatter))
 
+    axis.tick_params(pad=10)
     for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
-        tick.set_fontsize("large")
+        tick.set_fontsize("x-large")
 
     if interpolated:
         points = []
@@ -512,7 +545,9 @@ def lightingContour(data, interpolated=False, showOriginal=False, title=None, fi
 
         cont = axis.contourf(X, Y, Z, levels=10, cmap=colorMap)
         colorBar = fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
-        colorBar.set_label("Přesnost [%]", fontsize="x-large")
+        colorBar.set_label("Přesnost [%]", fontsize="xx-large")
+        colorBar.ax.tick_params(labelsize="x-large")
+
 
     if showOriginal:
         _x, _y, _z = getData(data)
@@ -520,7 +555,7 @@ def lightingContour(data, interpolated=False, showOriginal=False, title=None, fi
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
     plt.grid(True, color="black", alpha=0.75)
-    plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(left=2, right=0.4, bottom=1, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -536,4 +571,4 @@ matching(filename="matching.png")
 partProcess(filename="partProcess.png")
 totalTime(filename="totalTime.png")
 # lighting(data=data.DATA_LIGHTING_FT, show=True)
-lightingContour(data=data.DATA_LIGHTING_FT, filename="ftLighting_viridis.png")
+lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")
