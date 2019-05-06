@@ -8,8 +8,8 @@ from timeit import default_timer as timer
 class BaseKeypointAlgorithm(BaseAlgorithm):
     bf: cv.BFMatcher      # brute force matcher, its parameter "normType" varies with algorithms (L2 for SIFT/SURF, HAMMING for ORB, BRIEF, FREAK)
 
-    def __init__(self, parts, images, topMatches=20, drawMatches=True):
-        super().__init__(parts, images)
+    def __init__(self, parts, images, topMatches=20, drawMatches=True, iteration=None):
+        super().__init__(parts, images, iteration)
         self.topMatches = topMatches
         self.drawMatches = drawMatches
 

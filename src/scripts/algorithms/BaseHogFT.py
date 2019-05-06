@@ -1,16 +1,22 @@
 import cv2 as cv
 import numpy as np
 import os
+from time import strftime
 from types import LambdaType
 from src.scripts.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
+STEPS_PER_ITERATION = 50 * 75
+TOTAL_STEPS = STEPS_PER_ITERATION * 10
+
 class BaseHogFT(BaseAlgorithm):
-    def __init__(self, parts, images):
-        super().__init__(parts, images)
+    def __init__(self, parts, images, iteration = None):
+        super().__init__(parts, images, iteration)
 
     def processImages(self):
-        for image in self.images:
+        print("---------")
+        for i, image in enumerate(self.images):
+            print(f"(Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Preprocessing image {i + 1}")
             img = cv.cvtColor(image.colorImage, cv.COLOR_BGR2GRAY)
             descriptor, time = self.calculateDescriptor(img)
             self.diagnostics.times.imageDescriptor.append(time)
@@ -22,7 +28,10 @@ class BaseHogFT(BaseAlgorithm):
             })
 
     def processParts(self):
-        for part in self.parts:
+        for i, part in enumerate(self.parts):
+            print("---------")
+            progress = self.iteration * STEPS_PER_ITERATION + i * 75
+            print(f"(Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Processing part {i + 1}/{len(self.parts)} ({(100 * (progress / TOTAL_STEPS)):.2f} %)")
             partProcessTime = timer()
             img = cv.cvtColor(part.colorImage, cv.COLOR_BGR2GRAY)
             partSize = self.getSizeFromShape(img.shape)
@@ -42,7 +51,9 @@ class BaseHogFT(BaseAlgorithm):
             }
 
             allImageProcessTime = timer()
-            for image in self.imageData:
+            for j, image in enumerate(self.imageData):
+                progress = self.iteration * STEPS_PER_ITERATION + i * 75 + j
+                print(f"- (Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Pairing part {i + 1} with image {j + 1}/{len(self.imageData)} ({(100 * (progress / TOTAL_STEPS)):.2f} %)")
                 imageProcessTime = timer()
                 subsets = 0
                 windowSize, imageSize, stepSize = self.getSubsetParams(partDescriptor, image["descriptor"])

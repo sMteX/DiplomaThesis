@@ -4,8 +4,8 @@ from src.scripts.algorithms.BaseHogFT import BaseHogFT
 from timeit import default_timer as timer
 
 class HOG(BaseHogFT):
-    def __init__(self, parts, images, cellSide=4):
-        super().__init__(parts, images)
+    def __init__(self, parts, images, cellSide=4, iteration=None):
+        super().__init__(parts, images, iteration)
         # parameters for HOGDescriptor
         self.cellSide = cellSide
         self.cellSize = (self.cellSide, self.cellSide)  # w x h

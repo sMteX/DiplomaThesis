@@ -94,7 +94,7 @@ class BaseAlgorithm:
             self.imageKeypoints = imageKeypoints
             self.topMatches = topMatches
 
-    def __init__(self, parts: List[InputImage], images: List[InputImage]) -> None:
+    def __init__(self, parts: List[InputImage], images: List[InputImage], iteration: int = None) -> None:
         """
         Initializes the base matching algorithm
 
@@ -106,6 +106,7 @@ class BaseAlgorithm:
         self.diagnostics = self.Diagnostics()
         self.imageData = []
         self.results: List[BaseAlgorithm.MatchingResult] = []
+        self.iteration = iteration
     """
     Overall structure of the algorithm stays the same
 

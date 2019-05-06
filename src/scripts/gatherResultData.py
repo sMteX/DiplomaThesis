@@ -7,7 +7,7 @@ import re
 
 rootDir = "../../data/images/testing/output/1280x720"
 
-folderNames = ["ft", "sift", "surf", "fast_brief", "orb", "fast_freak"]
+folderNames = ["hog", "ft", "sift", "surf", "fast_brief", "orb", "fast_freak"]
 textData = { }
 
 for folder in folderNames:
