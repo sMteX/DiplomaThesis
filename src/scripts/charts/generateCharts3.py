@@ -121,7 +121,7 @@ def accuracy(title=False, filename=None, show=False):
 
     setupXAxis(axis)
 
-    axis.set_ylabel("Přesnost [%]")
+    axis.set_ylabel("Přesnost [%]", labelpad=30)
     axis.yaxis.label.set_fontsize("xx-large")
     for tick in axis.get_yticklabels():
         tick.set_fontsize("x-large")
@@ -158,7 +158,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
 
     setupXAxis(axis)
 
-    axis.set_ylabel("Délka výpočtu deskriptoru části [ms]")
+    axis.set_ylabel("Délka výpočtu deskriptoru části [ms]", labelpad=50)
     axis.yaxis.label.set_fontsize("xx-large")
     for tick in axis.get_yticklabels():
         tick.set_fontsize("x-large")
@@ -195,7 +195,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
 
     setupXAxis(bottom)
 
-    fig.text(0.07, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Délka výpočtu deskriptoru obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
 
     for axis in [bottom, upper]:
         for tick in axis.get_yticklabels():
@@ -239,7 +239,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Průměrná velikost deskriptoru části", fontsize="xx-large")
 
-    fig.text(0.06, 0.55, "Průměrná velikost deskriptoru části (v tisících)", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Průměrná velikost deskriptoru části (v tisících)", va="center", rotation="vertical", fontsize="xx-large")
 
     setupXAxis(bottom)
 
@@ -359,7 +359,7 @@ def matching(title=False, filename=None, show=False):
 
     setupXAxis(bottom)
 
-    fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
 
     for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
@@ -413,7 +413,7 @@ def partProcess(title=False, filename=None, show=False):
 
     setupXAxis(bottom)
 
-    fig.text(0.06, 0.55, "Délka zpracování celé části [s]", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Délka zpracování celé části [s]", va="center", rotation="vertical", fontsize="xx-large")
 
     for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
@@ -470,7 +470,7 @@ def totalTime(title=False, filename=None, show=False):
     if title:
         bottom.set_title("Celkový čas", fontsize="xx-large")
 
-    fig.text(0.07, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="xx-large")
 
     setupXAxis(bottom)
 
