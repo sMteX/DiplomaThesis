@@ -201,15 +201,15 @@ def imageDescriptorTime(title=False, filename=None, show=False):
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.set_ylim(0, 85)
-    upper.set_ylim(100, 420)
+    bottom.set_ylim(0, 90)
+    upper.set_ylim(100, 475)
     upper.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    bottom.yaxis.set_major_locator(plt.LinearLocator(8))
-    upper.yaxis.set_major_locator(plt.LinearLocator(8))
+    bottom.yaxis.set_major_locator(plt.LinearLocator(7))
+    upper.yaxis.set_major_locator(plt.LinearLocator(6))
 
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
@@ -250,9 +250,9 @@ def partDescriptorSize(title=False, filename=None, show=False):
     bottom.set_ylim(0, 8000)
     middle.set_ylim(10000, 30000)
     middle.xaxis.tick_top()
-    upper.set_ylim(43000, 57000)
+    upper.set_ylim(40000, 60000)
     upper.xaxis.tick_top()
-    top.set_ylim(100000, 105000)
+    top.set_ylim(100000, 104000)
     top.xaxis.tick_top()
 
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
@@ -307,7 +307,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.set_ylim(0, 220000)
+    bottom.set_ylim(0, 240000)
     middle.set_ylim(300000, 500000)
     middle.xaxis.tick_top()
     upper.set_ylim(600000, 900000)
@@ -419,12 +419,12 @@ def partProcess(title=False, filename=None, show=False):
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.set_ylim(0, 600)
-    middle.set_ylim(1000, 11000)
+    bottom.set_ylim(0, 800)
+    middle.set_ylim(1000, 13000)
     middle.xaxis.tick_top()
-    upper.set_ylim(46000, 52000)
+    upper.set_ylim(48000, 52000)
     upper.xaxis.tick_top()
-    top.set_ylim(350000, 400000)
+    top.set_ylim(325000, 425000)
     top.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
@@ -488,7 +488,7 @@ def totalTime(title=False, filename=None, show=False):
     upper.yaxis.set_major_locator(plt.LinearLocator(5))
     top.yaxis.set_major_locator(plt.LinearLocator(5))
 
-    bottom.set_ylim(0, 30000)
+    bottom.set_ylim(0, 32000)
     middle.set_ylim(60000, 130000)
     middle.xaxis.tick_top()
     upper.set_ylim(250000, 2600000)
