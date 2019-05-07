@@ -340,9 +340,10 @@ DATA_640x480 = {
 }
 
 # 1280x720, 75 images, 50 parts, 10 iterations, averaged
-# HOG wasn't measured
+# HOG was measured too..
 DATA_1280x720 = {
     "totalTime": {
+        "HOG": 18738210.048,
         "FT": 427566.214,
         "SIFT": 117512.610,
         "SURF": 93229.912,
@@ -351,6 +352,7 @@ DATA_1280x720 = {
         "FREAK": 517027.949
     },
     "descriptorPart": {
+        "HOG": 2.601,
         "FT": 3.835,
         "SIFT": 25.378,
         "SURF": 13.124,
@@ -359,6 +361,7 @@ DATA_1280x720 = {
         "FREAK": 7.997
     },
     "descriptorImage": {
+        "HOG": 62.640,
         "FT": 72.197,
         "SIFT": 408.984,
         "SURF": 249.844,
@@ -367,6 +370,7 @@ DATA_1280x720 = {
         "FREAK": 142.024
     },
     "matchingSingle": {
+        "HOG": 4995.443,
         "FT": 112.502,
         "SIFT": 22.801,
         "SURF": 19.675,
@@ -375,6 +379,7 @@ DATA_1280x720 = {
         "FREAK": 134.902
     },
     "matchingAll": {
+        "HOG": 374665.261,
         "FT": 8437.854,
         "SIFT": 1710.247,
         "SURF": 1475.799,
@@ -383,6 +388,7 @@ DATA_1280x720 = {
         "FREAK": 10117.836
     },
     "partProcess": {
+        "HOG": 374668.359,
         "FT": 8441.795,
         "SIFT": 1735.748,
         "SURF": 1489.061,
@@ -391,6 +397,7 @@ DATA_1280x720 = {
         "FREAK": 10125.942
     },
     "descriptorPartSize": {
+        "HOG": 102983.76,
         "FT": 779.20,
         "SIFT": 45470.72,
         "SURF": 22263.04,
@@ -399,6 +406,7 @@ DATA_1280x720 = {
         "FREAK": 55632.64
     },
     "descriptorImageSize": {
+        "HOG": 2055636.00,
         "FT": 14651.00,
         "SIFT": 472152.75,
         "SURF": 333871.79,
@@ -407,6 +415,7 @@ DATA_1280x720 = {
         "FREAK": 865511.25
     },
     "accuracy": {
+        "HOG": 1,
         "FT": 1,
         "SIFT": 1,
         "SURF": 1,
