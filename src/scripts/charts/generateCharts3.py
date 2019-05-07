@@ -9,7 +9,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 import src.scripts.charts.data as data
 
-OUTPUT_DIR = "./output/allSizesNewLargerHOG/gray/subplotCount"
+OUTPUT_DIR = "./output/allSizesNewLargerHOG/gray"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
@@ -135,7 +135,7 @@ def accuracy(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.475), handles=GRAY_LEGEND, fontsize='large')
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -172,7 +172,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
     axis.bar(mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     axis.bar(largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    plt.legend(loc="center left", bbox_to_anchor=(1.0125, 0.475), handles=GRAY_LEGEND, fontsize='large')
     plt.grid(True, axis="y")
 
     top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
@@ -215,7 +215,7 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=GRAY_LEGEND, fontsize='large')
+    bottom.legend(loc="center left", bbox_to_anchor=(1.0125, 1.02), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     upper.grid(True, axis="y")
 
@@ -273,7 +273,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -331,7 +331,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=GRAY_LEGEND, fontsize='large')
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -385,7 +385,7 @@ def matching(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -444,7 +444,7 @@ def partProcess(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -503,7 +503,7 @@ def totalTime(title=False, filename=None, show=False):
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=GRAY_LEGEND, fontsize='large')
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
@@ -638,13 +638,13 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
     if show:
         plt.show()
 
-accuracy(filename="1_accuracy.png")
-# partDescriptorTime(filename="partDescriptorTime.png")
-imageDescriptorTime(filename="2_imageDescriptorTime.png")
-# partDescriptorSize(filename="partDescriptorSize.png")
-imageDescriptorSize(filename="4_imageDescriptorSize.png")
-# matching(filename="matching.png")
-# partProcess(filename="partProcess.png")
-# totalTime(filename="totalTime.png")
-# # lighting(data=data.DATA_LIGHTING_FT, show=True)
-# lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")
+accuracy(filename="accuracy.png")
+partDescriptorTime(filename="partDescriptorTime.png")
+imageDescriptorTime(filename="imageDescriptorTime.png")
+partDescriptorSize(filename="partDescriptorSize.png")
+imageDescriptorSize(filename="imageDescriptorSize.png")
+matching(filename="matching.png")
+partProcess(filename="partProcess.png")
+totalTime(filename="totalTime.png")
+# lighting(data=data.DATA_LIGHTING_FT, show=True)
+lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")
