@@ -8,7 +8,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 import src.scripts.charts.data as data
 
-OUTPUT_DIR = "./output/allSizesNewLarger"
+OUTPUT_DIR = "./output/allSizesNewLargerHOG"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
@@ -19,7 +19,13 @@ COLORS_640x480 = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce
 COLORS_1280x720 = ["#990099", "#990000", "#994c00", "#b29700", "#006600", "#004c9e", "#4c0099"]
 
 PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
-SECOND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
+SECOND_THOUSAND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
+def DECIMAL_SECOND_FORMATTER(y, _):
+    if y < 1000:
+        return f"{(y / 1000.0):.1f}"
+    else:
+        return f"{(y / 1000.0):.0f}"
+
 DEFAULT_LEGEND = [
     patches.Patch(edgecolor="black", facecolor=COLORS_300x300[0], label="300x300"),
     patches.Patch(edgecolor="black", facecolor=COLORS_640x480[0], label="640x480"),
@@ -217,16 +223,16 @@ def partDescriptorSize(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorPartSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorPartSize"])
 
-    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Průměrná velikost deskriptoru části", fontsize="xx-large")
 
-    fig.text(0.06, 0.55, "Průměrná velikost deskriptoru části", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.06, 0.55, "Průměrná velikost deskriptoru části (v tisících)", va="center", rotation="vertical", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    for axis in [bottom, middle, upper]:
+    for axis in [top, bottom, middle, upper]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
@@ -235,23 +241,32 @@ def partDescriptorSize(title=False, filename=None, show=False):
     middle.xaxis.tick_top()
     upper.set_ylim(43000, 57000)
     upper.xaxis.tick_top()
+    top.set_ylim(100000, 105000)
+    top.xaxis.tick_top()
+
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
+    bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
+    top.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, middle, upper)
+    drawAxisSplitters(bottom, middle, upper, top)
 
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -263,38 +278,49 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["descriptorImageSize"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["descriptorImageSize"])
 
-    fig, (upper, bottom) = plt.subplots(2, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Průměrná velikost deskriptoru obrázku", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.04, 0.55, "Průměrná velikost deskriptoru obrázku", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.04, 0.55, "Průměrná velikost deskriptoru obrázku (v tisících)", va="center", rotation="vertical", fontsize="xx-large")
 
-    for axis in [bottom, upper]:
+    for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.set_ylim(0, 200000)
-    upper.set_ylim(300000, 900000)
+    bottom.set_ylim(0, 220000)
+    middle.set_ylim(300000, 500000)
+    middle.xaxis.tick_top()
+    upper.set_ylim(600000, 900000)
     upper.xaxis.tick_top()
+    top.set_ylim(2000000, 2100000)
+    top.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    drawAcross([bottom, upper], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
 
-    upper.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND, fontsize='large')
+    drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+
+    middle.legend(loc="center left", bbox_to_anchor=(1.0125, -0.1), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
+    middle.grid(True, axis="y")
     upper.grid(True, axis="y")
+    top.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, upper)
+    drawAxisSplitters(bottom, middle, upper, top)
 
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -306,7 +332,7 @@ def matching(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["matchingSingle"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["matchingSingle"])
 
-    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Délka hledání v jednom obrázku", fontsize="xx-large")
@@ -315,7 +341,7 @@ def matching(title=False, filename=None, show=False):
 
     fig.text(0.07, 0.55, "Délka hledání v jednom obrázku [ms]", va="center", rotation="vertical", fontsize="xx-large")
 
-    for axis in [bottom, middle, upper]:
+    for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
@@ -324,23 +350,26 @@ def matching(title=False, filename=None, show=False):
     middle.xaxis.tick_top()
     upper.set_ylim(600, 700)
     upper.xaxis.tick_top()
+    top.set_ylim(4500, 5500)
+    top.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
+    top.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, middle, upper)
+    drawAxisSplitters(bottom, middle, upper, top)
 
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -352,16 +381,16 @@ def partProcess(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["partProcess"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["partProcess"])
 
-    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Délka zpracování celé části", fontsize="xx-large")
 
     setupXAxis(bottom)
 
-    fig.text(0.06, 0.55, "Délka zpracování celé části [ms]", va="center", rotation="vertical", fontsize="xx-large")
+    fig.text(0.06, 0.55, "Délka zpracování celé části [s]", va="center", rotation="vertical", fontsize="xx-large")
 
-    for axis in [bottom, middle, upper]:
+    for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
@@ -370,23 +399,31 @@ def partProcess(title=False, filename=None, show=False):
     middle.xaxis.tick_top()
     upper.set_ylim(46000, 52000)
     upper.xaxis.tick_top()
+    top.set_ylim(350000, 400000)
+    top.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
+    bottom.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
+    middle.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
+    upper.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
+    top.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
+
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, middle], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
+    top.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, middle, upper)
+    drawAxisSplitters(bottom, middle, upper, top)
 
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -398,7 +435,7 @@ def totalTime(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["totalTime"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["totalTime"])
 
-    fig, (upper, middle, bottom) = plt.subplots(3, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
         bottom.set_title("Celkový čas", fontsize="xx-large")
@@ -407,36 +444,40 @@ def totalTime(title=False, filename=None, show=False):
 
     setupXAxis(bottom)
 
-    for axis in [bottom, middle, upper]:
+    for axis in [bottom, middle, upper, top]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
-    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
-    upper.yaxis.set_major_formatter(FuncFormatter(SECOND_FORMATTER))
+    bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
 
     bottom.set_ylim(0, 30000)
     middle.set_ylim(60000, 130000)
     middle.xaxis.tick_top()
     upper.set_ylim(250000, 2600000)
     upper.xaxis.tick_top()
+    top.set_ylim(18000000, 19000000)
+    top.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
     drawAcross([bottom, middle, upper], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, middle, upper], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
     middle.legend(loc="center left", bbox_to_anchor=(1.0125, 0.5), handles=DEFAULT_LEGEND, fontsize='large')
     bottom.grid(True, axis="y")
     middle.grid(True, axis="y")
     upper.grid(True, axis="y")
+    top.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, middle, upper)
+    drawAxisSplitters(bottom, middle, upper, top)
 
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=top, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
