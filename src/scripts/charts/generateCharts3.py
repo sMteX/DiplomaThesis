@@ -126,7 +126,7 @@ def accuracy(title=False, filename=None, show=False):
     for tick in axis.get_yticklabels():
         tick.set_fontsize("x-large")
     axis.yaxis.set_major_formatter(FuncFormatter(PERCENTAGE_FORMATTER))
-
+    axis.yaxis.set_major_locator(plt.MultipleLocator(0.1))
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
@@ -163,7 +163,7 @@ def partDescriptorTime(title=False, filename=None, show=False):
     for tick in axis.get_yticklabels():
         tick.set_fontsize("x-large")
     axis.set_ylim(0, 30)
-
+    axis.yaxis.set_major_locator(plt.MultipleLocator(2.5))
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
@@ -207,6 +207,9 @@ def imageDescriptorTime(title=False, filename=None, show=False):
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
+
+    bottom.yaxis.set_major_locator(plt.LinearLocator(8))
+    upper.yaxis.set_major_locator(plt.LinearLocator(8))
 
     bottom.bar(smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
@@ -261,6 +264,11 @@ def partDescriptorSize(title=False, filename=None, show=False):
     upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
     top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
 
+    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
+    middle.yaxis.set_major_locator(plt.LinearLocator(5))
+    upper.yaxis.set_major_locator(plt.LinearLocator(5))
+    top.yaxis.set_major_locator(plt.LinearLocator(5))
+
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
@@ -274,7 +282,7 @@ def partDescriptorSize(title=False, filename=None, show=False):
     drawAxisSplitters(bottom, middle, upper, top)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -314,6 +322,10 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     middle.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
     upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
     top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
+    middle.yaxis.set_major_locator(plt.LinearLocator(5))
+    upper.yaxis.set_major_locator(plt.LinearLocator(5))
+    top.yaxis.set_major_locator(plt.LinearLocator(5))
 
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
@@ -328,7 +340,7 @@ def imageDescriptorSize(title=False, filename=None, show=False):
     drawAxisSplitters(bottom, middle, upper, top)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -364,6 +376,11 @@ def matching(title=False, filename=None, show=False):
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
+    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
+    middle.yaxis.set_major_locator(plt.LinearLocator(5))
+    upper.yaxis.set_major_locator(plt.LinearLocator(5))
+    top.yaxis.set_major_locator(plt.LinearLocator(5))
+
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
@@ -377,7 +394,7 @@ def matching(title=False, filename=None, show=False):
     drawAxisSplitters(bottom, middle, upper, top)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -418,6 +435,11 @@ def partProcess(title=False, filename=None, show=False):
     upper.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
     top.yaxis.set_major_formatter(FuncFormatter(DECIMAL_SECOND_FORMATTER))
 
+    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
+    middle.yaxis.set_major_locator(plt.LinearLocator(5))
+    upper.yaxis.set_major_locator(plt.LinearLocator(5))
+    top.yaxis.set_major_locator(plt.LinearLocator(5))
+
     drawAcross([bottom, middle], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
     drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
     drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
@@ -431,7 +453,7 @@ def partProcess(title=False, filename=None, show=False):
     drawAxisSplitters(bottom, middle, upper, top)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
@@ -461,6 +483,11 @@ def totalTime(title=False, filename=None, show=False):
     upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
     top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
 
+    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
+    middle.yaxis.set_major_locator(plt.LinearLocator(5))
+    upper.yaxis.set_major_locator(plt.LinearLocator(5))
+    top.yaxis.set_major_locator(plt.LinearLocator(5))
+
     bottom.set_ylim(0, 30000)
     middle.set_ylim(60000, 130000)
     middle.xaxis.tick_top()
@@ -485,7 +512,7 @@ def totalTime(title=False, filename=None, show=False):
     drawAxisSplitters(bottom, middle, upper, top)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.15)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
