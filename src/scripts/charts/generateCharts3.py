@@ -9,7 +9,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 import src.scripts.charts.data as data
 
-OUTPUT_DIR = "./output/allSizesNewLargerHOG/gray"
+OUTPUT_DIR = "./output/allSizesNewLargerHOG/gray/subplotCount"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
@@ -638,13 +638,13 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
     if show:
         plt.show()
 
-accuracy(filename="accuracy.png")
-partDescriptorTime(filename="partDescriptorTime.png")
-imageDescriptorTime(filename="imageDescriptorTime.png")
-partDescriptorSize(filename="partDescriptorSize.png")
-imageDescriptorSize(filename="imageDescriptorSize.png")
-matching(filename="matching.png")
-partProcess(filename="partProcess.png")
-totalTime(filename="totalTime.png")
-# lighting(data=data.DATA_LIGHTING_FT, show=True)
-lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")
+accuracy(filename="1_accuracy.png")
+# partDescriptorTime(filename="partDescriptorTime.png")
+imageDescriptorTime(filename="2_imageDescriptorTime.png")
+# partDescriptorSize(filename="partDescriptorSize.png")
+imageDescriptorSize(filename="4_imageDescriptorSize.png")
+# matching(filename="matching.png")
+# partProcess(filename="partProcess.png")
+# totalTime(filename="totalTime.png")
+# # lighting(data=data.DATA_LIGHTING_FT, show=True)
+# lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")
