@@ -3,7 +3,6 @@ import numpy as np
 import math
 import matplotlib
 import matplotlib.pyplot as plt
-from collections import namedtuple
 from scipy.interpolate import griddata
 from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
@@ -13,13 +12,11 @@ OUTPUT_DIR = "./output/finalQuestionMark"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
-Color = namedtuple("Color", "light, normal, dark")
-GRAY = Color(light="#b5b5b5", normal="#878787", dark="#444444")
 # slightly lighter
-COLORS_300x300 = ["#ff23ff", "#ff4c4c", "#ff9e3d", "#ffe44c", "#00e500", "#47a0ff", "#a347ff"]
+COLORS_300x300 = ["#ff7aff", "#ff7171", "#ffbb77", "#ffe87a", "#00e500", "#47a0ff", "#b366ff"]
 COLORS_640x480 = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
 #slightly darker
-COLORS_1280x720 = ["#990099", "#990000", "#994c00", "#b29700", "#006600", "#004c9e", "#4c0099"]
+COLORS_1280x720 = ["#840084", "#990000", "#994c00", "#b29700", "#006600", "#00428a", "#440088"]
 
 PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
 SECOND_THOUSAND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
@@ -35,9 +32,9 @@ DEFAULT_LEGEND = [
     patches.Patch(edgecolor="black", facecolor=COLORS_1280x720[0], label="1280x720")
 ]
 GRAY_LEGEND = [
-    patches.Patch(edgecolor="black", facecolor=GRAY.light, label="300x300"),
-    patches.Patch(edgecolor="black", facecolor=GRAY.normal, label="640x480"),
-    patches.Patch(edgecolor="black", facecolor=GRAY.dark, label="1280x720")
+    patches.Patch(edgecolor="black", facecolor="#c6c6c6", label="300x300"),
+    patches.Patch(edgecolor="black", facecolor="#878787", label="640x480"),
+    patches.Patch(edgecolor="black", facecolor="#444444", label="1280x720")
 ]
 PICTURE_SIZE = (12.5, 10)
 DEFAULT_MARGINS = {
