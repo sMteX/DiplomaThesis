@@ -4,8 +4,8 @@ from src.scripts.algorithms.BaseHogFT import BaseHogFT
 from timeit import default_timer as timer
 
 class FT(BaseHogFT):
-    def __init__(self, parts, images, kernelRadius=8):
-        super().__init__(parts, images)
+    def __init__(self, parts, images, kernelRadius=8, iteration=None):
+        super().__init__(parts, images, iteration)
         # parameters for FTransform
         self.kernelRadius = kernelRadius
         self.kernel = ft.createKernel(ft.LINEAR, self.kernelRadius, chn=1)
