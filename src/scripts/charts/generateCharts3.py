@@ -9,7 +9,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 import src.scripts.charts.data as data
 
-OUTPUT_DIR = "./output/allSizesNewLargerHOG/gray"
+OUTPUT_DIR = "./output/finalQuestionMark"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
@@ -158,12 +158,12 @@ def partDescriptorTime(title=False, filename=None, show=False):
 
     setupXAxis(axis)
 
-    axis.set_ylabel("Délka výpočtu deskriptoru části [ms]", labelpad=50)
+    axis.set_ylabel("Délka výpočtu deskriptoru části [ms]", labelpad=70)
     axis.yaxis.label.set_fontsize("xx-large")
     for tick in axis.get_yticklabels():
         tick.set_fontsize("x-large")
     axis.set_ylim(0, 30)
-    axis.yaxis.set_major_locator(plt.MultipleLocator(2.5))
+    axis.yaxis.set_major_locator(plt.MultipleLocator(2))
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
@@ -465,54 +465,59 @@ def totalTime(title=False, filename=None, show=False):
     mediumX, mediumY = splitIntoXY(data.DATA_640x480["totalTime"])
     largeX, largeY = splitIntoXY(data.DATA_1280x720["totalTime"])
 
-    fig, (top, upper, middle, bottom) = plt.subplots(4, 1, sharex=True, figsize=PICTURE_SIZE)
+    fig, (axis5, axis4, axis3, axis2, axis1) = plt.subplots(5, 1, sharex=True, figsize=PICTURE_SIZE)
 
     if title:
-        bottom.set_title("Celkový čas", fontsize="xx-large")
+        axis1.set_title("Celkový čas", fontsize="xx-large")
 
     fig.text(0.04, 0.55, "Celkový čas [s]", va="center", rotation="vertical", fontsize="xx-large")
 
-    setupXAxis(bottom)
+    setupXAxis(axis1)
 
-    for axis in [bottom, middle, upper, top]:
+    for axis in [axis1, axis2, axis3, axis4, axis5]:
         for tick in axis.get_yticklabels():
             tick.set_fontsize("x-large")
 
-    bottom.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
-    middle.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
-    upper.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
-    top.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    axis1.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    axis2.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    axis3.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    axis4.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
+    axis5.yaxis.set_major_formatter(FuncFormatter(SECOND_THOUSAND_FORMATTER))
 
-    bottom.yaxis.set_major_locator(plt.LinearLocator(5))
-    middle.yaxis.set_major_locator(plt.LinearLocator(5))
-    upper.yaxis.set_major_locator(plt.LinearLocator(5))
-    top.yaxis.set_major_locator(plt.LinearLocator(5))
+    axis1.yaxis.set_major_locator(plt.LinearLocator(4))
+    axis2.yaxis.set_major_locator(plt.LinearLocator(4))
+    axis3.yaxis.set_major_locator(plt.LinearLocator(4))
+    axis4.yaxis.set_major_locator(plt.LinearLocator(4))
+    axis5.yaxis.set_major_locator(plt.LinearLocator(4))
 
-    bottom.set_ylim(0, 32000)
-    middle.set_ylim(60000, 130000)
-    middle.xaxis.tick_top()
-    upper.set_ylim(250000, 2600000)
-    upper.xaxis.tick_top()
-    top.set_ylim(18000000, 19000000)
-    top.xaxis.tick_top()
+    axis1.set_ylim(0, 30000)
+    axis2.set_ylim(60000, 150000)
+    axis2.xaxis.tick_top()
+    axis3.set_ylim(300000, 600000)
+    axis3.xaxis.tick_top()
+    axis4.set_ylim(2200000, 2800000)
+    axis4.xaxis.tick_top()
+    axis5.set_ylim(18000000, 19500000)
+    axis5.xaxis.tick_top()
     # up to 3 bars (sizes), 0.8 is default and leaves a little room between algorithms
     barWidth = 0.8 / 3
     hW = barWidth / 2
 
-    drawAcross([bottom, middle, upper], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
-    drawAcross([bottom, middle, upper], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
-    drawAcross([bottom, middle, upper, top], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
+    drawAcross([axis1, axis2, axis3], smallX - 2 * hW, smallY, barWidth, color=pickColors(COLORS_300x300, smallX), edgecolor="black")
+    drawAcross([axis1, axis2, axis3, axis4], mediumX, mediumY, barWidth, color=pickColors(COLORS_640x480, mediumX), edgecolor="black")
+    drawAcross([axis1, axis2, axis3, axis4, axis5], largeX + 2 * hW, largeY, barWidth, color=pickColors(COLORS_1280x720, largeX), edgecolor="black")
 
-    middle.legend(loc="center left", bbox_to_anchor=(1.0125, 1), handles=GRAY_LEGEND, fontsize='large')
-    bottom.grid(True, axis="y")
-    middle.grid(True, axis="y")
-    upper.grid(True, axis="y")
-    top.grid(True, axis="y")
+    axis3.legend(loc="center left", bbox_to_anchor=(1.0125, 0.333), handles=GRAY_LEGEND, fontsize='large')
+    axis1.grid(True, axis="y")
+    axis2.grid(True, axis="y")
+    axis3.grid(True, axis="y")
+    axis4.grid(True, axis="y")
+    axis5.grid(True, axis="y")
 
-    drawAxisSplitters(bottom, middle, upper, top)
+    drawAxisSplitters(axis1, axis2, axis3, axis4, axis5)
 
     topMargin = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.25)
+    plt.subplots_adjust(**transformMargins(top=topMargin, pictureSize=PICTURE_SIZE, **DEFAULT_MARGINS), hspace=0.3)
 
     if filename:
         plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
