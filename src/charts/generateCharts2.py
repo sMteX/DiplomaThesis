@@ -6,7 +6,7 @@ from matplotlib.colors import hsv_to_rgb
 from matplotlib.ticker import FuncFormatter
 from src.charts import data as data
 
-OUTPUT_DIR = "./output"
+OUTPUT_DIR = "../../data/charts"
 
 # taken from Wikipedia
 def toHSV(h, s, l):

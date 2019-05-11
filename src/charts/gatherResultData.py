@@ -5,7 +5,7 @@ import xlsxwriter
 import os
 import re
 
-rootDir = "../../data/images/testing/output/1280x720"
+rootDir = "../../data/experimentResults/1280x720"
 
 folderNames = ["hog", "ft", "sift", "surf", "fast_brief", "orb", "fast_freak"]
 textData = { }

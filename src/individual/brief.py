@@ -1,10 +1,10 @@
 from src.algorithms.BaseAlgorithm import fromDirectory
 from src.algorithms.BRIEF import BRIEF
 
-imagesDir = "../../data/images"
-partsDir = imagesDir + "/testing/parts/300x300"
-originalDir = imagesDir + "/original/300x300"
-outputDir = imagesDir + "/testing/output/old_single/fast_brief/new"
+dataDir = "../../data"
+partsDir = f"{dataDir}/parts/300x300"
+originalDir = f"{dataDir}/original/300x300"
+outputDir = f"{dataDir}/experimentResults/old_single/fast_brief/new"
 
 brief = BRIEF(parts=fromDirectory(partsDir),
               images=fromDirectory(originalDir))

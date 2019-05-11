@@ -8,7 +8,7 @@ from matplotlib.ticker import FuncFormatter
 import matplotlib.patches as patches
 from src.charts import data as data
 
-OUTPUT_DIR = "./output/finalQuestionMark"
+OUTPUT_DIR = "../../data/charts/finalQuestionMark"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
