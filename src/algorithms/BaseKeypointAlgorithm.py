@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 import os
-from types import LambdaType
 from src.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
@@ -10,19 +9,24 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
 
     def __init__(self, parts, images, topMatches=20, drawMatches=True, iteration=None):
         super().__init__(parts, images, iteration)
+        # how many keypoint matches should be taken into account when looking for the best result (also how many matches should be drawn in the result)
         self.topMatches = topMatches
+        # if matches should be visualized in the result or not
         self.drawMatches = drawMatches
 
     def processImages(self):
         for image in self.images:
+            # converts image to gray, calculates keypoints and descriptors for them (somehow)
             img = cv.cvtColor(image.colorImage, cv.COLOR_BGR2GRAY)
             keypoints, descriptors, time = self.calculateDescriptor(img)
+            # sometimes, there are no keypoints found, check if the output is valid, otherwise skip this image
             ok, error = self.checkValidDetectOutput(keypoints, descriptors)
             if not ok:
                 print(f"ERROR computing keypoints or descriptors for {image.filePath} ({error}), skipping...")
                 continue
             self.diagnostics.times.imageDescriptor.append(time)
             self.diagnostics.counts.imageDescriptorSize.append(descriptors.size)
+            # save keypoints, descriptors and image itself to memory
             self.imageData.append({
                 "colorImage": image.colorImage,
                 "path": image.filePath,
@@ -33,10 +37,12 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
     def processParts(self):
         for part in self.parts:
             partProcessTime = timer()
+            # convert part to gray, calculate keypoints and descriptors for it
             img = cv.cvtColor(part.colorImage, cv.COLOR_BGR2GRAY)
             partSize = self.getSizeFromShape(img.shape)
 
             partKeypoints, partDescriptors, time = self.calculateDescriptor(img)
+            # check output for validity, skip part otherwise
             ok, error = self.checkValidDetectOutput(partKeypoints, partDescriptors)
             if not ok:
                 print(f"ERROR computing keypoints or descriptors for {part.filePath} ({error}), skipping...")
@@ -45,6 +51,9 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             self.diagnostics.times.partDescriptor.append(time)
             self.diagnostics.counts.partDescriptorSize.append(partDescriptors.size)
 
+            # structure for storing the best result
+            # topMatches contains the keypoint matches
+            # which themselves contain the source and target image + coordinates
             best = {
                 "image": None,
                 "distance": float("inf"),
@@ -54,8 +63,10 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             allImageProcessTime = timer()
             for image in self.imageData:
                 imageProcessTime = timer()
+                # brute-force match all part descriptors with image descriptors
                 matches = self.bf.match(partDescriptors, image["descriptors"])
 
+                # sort matches by distance, take certain amount of best ones and sum the distances
                 matches = sorted(matches, key=lambda x: x.distance)
                 matches = matches[:self.topMatches]
                 totalDistance = np.sum(np.asarray(list(map(lambda match: match.distance, matches))))
@@ -71,7 +82,7 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
             self.diagnostics.times.allImagesMatching.append(end - allImageProcessTime)
             self.diagnostics.times.partProcess.append(end - partProcessTime)
 
-            # processing result
+            # process result - extract start and end points of the rectangle, where part was found
             bestMatch = best["topMatches"][0]
             bestKeypointPart = partKeypoints[bestMatch.queryIdx]
             bestKeypointImage = best["image"]["keypoints"][bestMatch.trainIdx]
@@ -92,13 +103,11 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
     # implement in child algorithms
 
     def calculateDescriptor(self, img) -> object:
+        """
+        Calculates keypoints and descriptors for given image
+        :return: Tuple (keypoints, descriptors, time)
+        """
         pass
-
-    def writeResults(self, target, includePart=False):
-        isLambda = isinstance(target, LambdaType)
-        for i, result in enumerate(self.results):
-            path = os.path.abspath(f"{target}/{i}.jpg") if not isLambda else os.path.abspath(target(i))
-            self.writeSingleResult(result, path, includePart)
 
     def writeSingleResult(self, result, path, includePart=False):
         path = os.path.abspath(path)
@@ -108,6 +117,8 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
                                    pt2=result.end,
                                    color=(0, 0, 255))
         if self.drawMatches:
+            # OpenCV's drawMatches() does the same as the elif branch under this one
+            # combines part and target image into one and draws matches between corresponding keypoints
             resultImage = cv.drawMatches(img1=result.part.copy(),
                                          keypoints1=result.partKeypoints,
                                          img2=resultImage,
@@ -117,6 +128,7 @@ class BaseKeypointAlgorithm(BaseAlgorithm):
                                          flags=cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS)
             cv.imwrite(path, resultImage)
         elif includePart:
+            # create a new image which combines part and target image, save to file
             out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
             out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
             out[0:, result.part.shape[1]:] = resultImage

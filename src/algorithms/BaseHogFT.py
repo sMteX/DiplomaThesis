@@ -2,7 +2,6 @@ import cv2 as cv
 import numpy as np
 import os
 from time import strftime
-from types import LambdaType
 from src.algorithms.BaseAlgorithm import BaseAlgorithm
 from timeit import default_timer as timer
 
@@ -17,10 +16,13 @@ class BaseHogFT(BaseAlgorithm):
         print("---------")
         for i, image in enumerate(self.images):
             print(f"(Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Preprocessing image {i + 1}")
+            # convert image to gray, calculate descriptor for it (somehow)
             img = cv.cvtColor(image.colorImage, cv.COLOR_BGR2GRAY)
             descriptor, time = self.calculateDescriptor(img)
+
             self.diagnostics.times.imageDescriptor.append(time)
             self.diagnostics.counts.imageDescriptorSize.append(descriptor.size)
+            # save the descriptor and image it belongs to
             self.imageData.append({
                 "colorImage": image.colorImage,
                 "path": image.filePath,
@@ -33,13 +35,16 @@ class BaseHogFT(BaseAlgorithm):
             progress = self.iteration * STEPS_PER_ITERATION + i * 75
             print(f"(Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Processing part {i + 1}/{len(self.parts)} ({(100 * (progress / TOTAL_STEPS)):.2f} %)")
             partProcessTime = timer()
+            # convert part to gray, calculate descriptor for it
             img = cv.cvtColor(part.colorImage, cv.COLOR_BGR2GRAY)
             partSize = self.getSizeFromShape(img.shape)
 
             partDescriptor, time = self.calculateDescriptor(img)
+
             self.diagnostics.times.partDescriptor.append(time)
             self.diagnostics.counts.partDescriptorSize.append(partDescriptor.size)
 
+            # structure for storing the best result
             best = {
                 "distance": float("inf"),  # default to +infinity
                 "colorImage": None,
@@ -56,7 +61,9 @@ class BaseHogFT(BaseAlgorithm):
                 print(f"- (Iteration {self.iteration + 1}, {strftime('%H:%M:%S')}) Pairing part {i + 1} with image {j + 1}/{len(self.imageData)} ({(100 * (progress / TOTAL_STEPS)):.2f} %)")
                 imageProcessTime = timer()
                 subsets = 0
+                # extract info about how subsets from the image should be gotten
                 windowSize, imageSize, stepSize = self.getSubsetParams(partDescriptor, image["descriptor"])
+                # iterate through all subsets from the image with the same size as the searched part
                 for startX, startY, endX, endY in self.getSubsets(windowSize, imageSize, stepSize):
                     subsets = subsets + 1
                     subset = self.getSubset(image["descriptor"], startX, startY, endX, endY)
@@ -64,6 +71,7 @@ class BaseHogFT(BaseAlgorithm):
                     distance = np.linalg.norm(subset - partDescriptor)  # should calculate the euclidean distance
 
                     if distance < best["distance"]:
+                        # get "scale" which translates (x,y) pair from the descriptor point of view to pixel (x,y)
                         scaleX, scaleY = self.getResultPointScale()
                         best["distance"] = distance
                         best["colorImage"] = image["colorImage"]
@@ -91,22 +99,33 @@ class BaseHogFT(BaseAlgorithm):
     # implement in child algorithms
 
     def calculateDescriptor(self, img) -> object:
+        """
+        Calculates descriptor for given image
+
+        :return: Tuple (descriptor, time) - time it took to calculate the descriptor
+        """
         pass
 
     def getSubsetParams(self, partDescriptor, imageDescriptor) -> object:
+        """
+        Extract info about how subsets from the image should be gotten
+
+        :return: Tuple (windowSize, imageSize, stepSize), where all sizes are tuples (int, int)
+        """
         pass
 
     def getSubset(self, descriptor, startX, startY, endX, endY) -> np.ndarray:
+        """
+        Gets a subset of target descriptor at given start and end positions, returns a Numpy array
+        """
         pass
 
     def getResultPointScale(self) -> object:
+        """
+        Returns a "scale" which translates (x,y) pair from the descriptor point of view to pixel (x,y)
+        :return: Tuple (scaleX, scaleY) - (int, int)
+        """
         pass
-
-    def writeResults(self, target, includePart=False):
-        isLambda = isinstance(target, LambdaType)
-        for i, result in enumerate(self.results):
-            path = os.path.abspath(f"{target}/{i}.jpg") if not isLambda else os.path.abspath(target(i))
-            self.writeSingleResult(result, path, includePart)
 
     def writeSingleResult(self, result, path, includePart=False):
         path = os.path.abspath(path)
@@ -117,8 +136,11 @@ class BaseHogFT(BaseAlgorithm):
                                    color=(0, 0, 255))
 
         if includePart:
+            # create a new image with width = part width + image width, height = image height
             out = np.zeros((resultImage.shape[0], resultImage.shape[1] + result.part.shape[1], 3), np.uint8)
+            # copy part to top left corner (area under it will be black)
             out[0:result.part.shape[0], 0:result.part.shape[1]] = result.part
+            # copy result image next to it
             out[0:, result.part.shape[1]:] = resultImage
             cv.imwrite(path, out)
         else:

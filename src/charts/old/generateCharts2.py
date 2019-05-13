@@ -1,3 +1,5 @@
+# Second iteration of the chart generating script - still trying to be API, better though
+# This approach has proven to be ineffective due to little quirks in different charts, which were too clunky to implement generally
 import os
 import numpy as np
 import math
@@ -6,7 +8,7 @@ from matplotlib.colors import hsv_to_rgb
 from matplotlib.ticker import FuncFormatter
 from src.charts import data as data
 
-OUTPUT_DIR = "../../data/charts"
+OUTPUT_DIR = "../../../data/charts"
 
 # taken from Wikipedia
 def toHSV(h, s, l):

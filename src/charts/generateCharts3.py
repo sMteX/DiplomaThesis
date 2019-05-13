@@ -1,3 +1,5 @@
+# Final iteration of chart generating script - gave up trying to be API, now has a method for each chart generated
+# much better, albeit with some code duplication
 import os
 import numpy as np
 import math
@@ -12,31 +14,34 @@ OUTPUT_DIR = "../../data/charts/finalQuestionMark"
 # global default font size, font sizes like xx-large are relative to this
 matplotlib.rcParams['font.size'] = 14   # default = 10
 
+# Colors
 # slightly lighter
 COLORS_300x300 = ["#ff7aff", "#ff7171", "#ffbb77", "#ffe87a", "#00e500", "#47a0ff", "#b366ff"]
 COLORS_640x480 = ["#cc00cc", "#e00000", "#e07000", "#efcf00", "#009e02", "#006ce0", "#7300e0"]
-#slightly darker
+# slightly darker
 COLORS_1280x720 = ["#840084", "#990000", "#994c00", "#b29700", "#006600", "#00428a", "#440088"]
 
-PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"
-SECOND_THOUSAND_FORMATTER = lambda y, _: math.floor(y / 1000.0)
+# Formatters
+PERCENTAGE_FORMATTER = lambda y, _: f"{(100 * y):.0f} %"    # 0.54 => "54 %"
+SECOND_THOUSAND_FORMATTER = lambda y, _: math.floor(y / 1000.0)     # 15542 => 15
 def DECIMAL_SECOND_FORMATTER(y, _):
+    # 971 => "0.9"
+    # 15542 => "15"
     if y < 1000:
         return f"{(y / 1000.0):.1f}"
     else:
         return f"{(y / 1000.0):.0f}"
 
-DEFAULT_LEGEND = [
-    patches.Patch(edgecolor="black", facecolor=COLORS_300x300[0], label="300x300"),
-    patches.Patch(edgecolor="black", facecolor=COLORS_640x480[0], label="640x480"),
-    patches.Patch(edgecolor="black", facecolor=COLORS_1280x720[0], label="1280x720")
-]
+# Legend
 GRAY_LEGEND = [
     patches.Patch(edgecolor="black", facecolor="#c6c6c6", label="300x300"),
     patches.Patch(edgecolor="black", facecolor="#878787", label="640x480"),
     patches.Patch(edgecolor="black", facecolor="#444444", label="1280x720")
 ]
+
+# Picture size in inches = due to default DPI of 100, this equals to 1250x1000 px picture size
 PICTURE_SIZE = (12.5, 10)
+# Margins from the picture border to the CHART borders
 DEFAULT_MARGINS = {
     "left": 2.3,
     "right": 2.3,
@@ -46,6 +51,10 @@ TOP_MARGIN_NO_TITLE = 0.2
 TOP_MARGIN_TITLE = 0.3
 
 def transformMargins(left, right, top, bottom, pictureSize):
+    """
+    Transforms margins into pyplot's format. Pyplot has different notion of margins.
+    Whereas for us, right=0.2 means "place the chart 0.2 inches from the right", for pyplot it's "right edge of the subplot should be at 20% the picture size".
+    """
     return {
         "left": left / pictureSize[0],
         "right": 1 - right / pictureSize[0],
@@ -54,6 +63,9 @@ def transformMargins(left, right, top, bottom, pictureSize):
     }
 
 def pickColors(colors, indexes):
+    """
+    Picks colors from input array on given indexes.
+    """
     return [colors[i] for i in indexes]
 
 algorithmMap = {
@@ -67,7 +79,7 @@ algorithmMap = {
 }
 
 def splitIntoXY(data):
-    # takes dictionary of alg: value, returns tuple (xValues, yValues) where xValues stays constant for same algorithm regardless of ordering
+    # takes dictionary of algorithm: value, returns tuple (xValues, yValues) where xValues stays constant for same algorithm regardless of ordering
     keys = list(data.keys())
     y = list(data.values())
     x = list(map(lambda key: algorithmMap[key], keys))
@@ -76,13 +88,14 @@ def splitIntoXY(data):
 def setupXAxis(axis):
     axis.set_xlabel("Algoritmus")
     axis.xaxis.label.set_fontsize("xx-large")
-    axis.xaxis.labelpad = 12    # default = 4
+    axis.xaxis.labelpad = 12    # Sets a margin between the X axis and the label for it, default = 4
     axis.set_xticks(list(algorithmMap.values()))
     axis.set_xticklabels(list(algorithmMap.keys()))
     for tick in axis.get_xticklabels():
         tick.set_fontsize("x-large")
 
 def drawAxisSplitters(*axes, size=0.01):
+    # Draws little marks on edges of subplots, indicating a split Y axis
     if len(axes) < 2:
         raise ValueError("Need at least 2 axes")
     bottom, *middle, upper = axes
@@ -103,6 +116,7 @@ def drawAxisSplitters(*axes, size=0.01):
     upper.plot((1 - size, 1 + size), (-size, size), **kwargs)
 
 def drawAcross(axes, *args, **kwargs):
+    # Draws something across all given axes
     for axis in axes:
         axis.bar(*args, **kwargs)
 
@@ -521,53 +535,11 @@ def totalTime(title=False, filename=None, show=False):
     if show:
         plt.show()
 
-def lighting(data, annotate=False, title=None, filename=None, show=False):
-    def getData(data):
-        x = []
-        y = []
-        z = []
-        for b, val in data.items():
-            for c, acc in val.items():
-                x.append(b)
-                y.append(c)
-                z.append(acc)
-        return np.asarray(x), np.asarray(y), np.asarray(z)
-
-    colorMap = plt.cm.get_cmap("RdYlGn")
-    x, y, z = getData(data)
-
-    fig, axis = plt.subplots(figsize=PICTURE_SIZE)
-
-    axis.set_ylabel("Kontrast", fontsize="x-large")
-    axis.set_xlabel("Jas", fontsize="x-large")
-    axis.set_ylim([-90, 90])
-    axis.set_xlim([-90, 90])
-    axis.xaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
-    axis.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.0f} %"))
-
-    for tick in [*axis.get_xticklabels(), *axis.get_yticklabels()]:
-        tick.set_fontsize("large")
-
-    sc = axis.scatter(x, y, c=z, vmin=0, vmax=1, cmap=colorMap)
-    fig.colorbar(sc, format=FuncFormatter(PERCENTAGE_FORMATTER))
-
-    if annotate:
-        for i in range(len(x)):
-            _x = x[i]
-            _y = y[i]
-            acc = z[i]
-            axis.annotate(PERCENTAGE_FORMATTER(acc, 0), (_x, _y), textcoords="offset pixels", xytext=(-10, 13))
-
-    top = TOP_MARGIN_TITLE if title else TOP_MARGIN_NO_TITLE
-    plt.subplots_adjust(**transformMargins(left=2.2, right=0.8, bottom=0.6, top=top, pictureSize=PICTURE_SIZE), hspace=0.15)
-
-    if filename:
-        plt.savefig(os.path.abspath(f"{OUTPUT_DIR}/{filename}"))
-    if show:
-        plt.show()
-
 def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=False, title=None, filename=None, show=False):
     def getData(data):
+        """
+        Returns a tuple of (xValues, yValues, zValues) from given data object
+        """
         x = []
         y = []
         z = []
@@ -586,6 +558,7 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
     axis.set_xlabel("Jas", fontsize="xx-large")
     axis.xaxis.labelpad = 12
 
+    # Formatter which turns -80 => "-80 %", 0 => "0 %" and 80 => "+80 %"
     formatter = lambda y, _: f"{y:.0f} %" if y < 0 else (f"{y:.0f} %" if y == 0 else f"+{y:.0f} %")
     axis.xaxis.set_major_formatter(FuncFormatter(formatter))
     axis.yaxis.set_major_formatter(FuncFormatter(formatter))
@@ -595,6 +568,7 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
         tick.set_fontsize("x-large")
 
     if interpolated:
+        # if points on the chart should be interpolated from known values - unused due to quite already dense grid
         points = []
         values = []
         for b, vals in data.items():
@@ -602,6 +576,7 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
                 points.append((b, c))
                 values.append(value)
 
+        # interpolates 33x33 grid into 80x80 grid
         grid_x, grid_y = np.mgrid[-80:80:80j, -80:80:80j]
         grid = griddata(np.asarray(points, dtype=np.float), np.asarray(values, dtype=np.float), (grid_x, grid_y), method='cubic')
         grid = np.clip(grid, 0, 1)
@@ -609,10 +584,12 @@ def lightingContour(data, colormap="viridis", interpolated=False, showOriginal=F
         colorBar = fig.colorbar(cont, format=FuncFormatter(PERCENTAGE_FORMATTER))
         colorBar.set_label("Přesnost [%]", fontsize="x-large")
     else:
+        # if points don't have to be interpolated
         X = np.asarray(list(data.keys()))
         Y = np.asarray(list(data[0].keys()))
         Z = np.empty((len(Y), len(X)), dtype=np.float)
 
+        # gets X, Y and Z values from the data (X, Y are 1D arrays, Z is 2D array)
         i = 0
         for b, val in data.items():
             j = 0
@@ -648,5 +625,4 @@ imageDescriptorSize(filename="imageDescriptorSize.png")
 matching(filename="matching.png")
 partProcess(filename="partProcess.png")
 totalTime(filename="totalTime.png")
-# lighting(data=data.DATA_LIGHTING_FT, show=True)
 lightingContour(data=data.DATA_LIGHTING_FT, colormap="plasma", filename="ftLighting_plasma.png")

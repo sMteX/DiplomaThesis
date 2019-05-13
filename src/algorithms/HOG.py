@@ -60,6 +60,10 @@ class HOG(BaseHogFT):
 
     @staticmethod
     def getReshapedSize(descriptorSize, winSize, blockSize, blockStride):
+        """
+        Converts the descriptor shape into proper width * height * descriptorSize format
+        :return: Tuple (width, height, descriptorSize, 1)
+        """
         w = (winSize[0] - blockSize[0]) / blockStride[0] + 1
         h = (winSize[1] - blockSize[1]) / blockStride[1] + 1
         dSize = descriptorSize / w / h

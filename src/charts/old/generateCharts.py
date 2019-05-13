@@ -1,10 +1,11 @@
+# First iteration of the chart generating scripts - tried to be general, like an API
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from src.charts import data as data
 
-OUTPUT_DIR = "../../data/charts"
+OUTPUT_DIR = "../../../data/charts"
 Y_AXIS_TIME = "Čas [ms]"
 Y_AXIS_SIZE = "Velikost deskriptoru"
 Y_AXIS_ACCURACY = "Přesnost [%]"

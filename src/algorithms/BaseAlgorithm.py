@@ -1,4 +1,5 @@
 from typing import List
+from types import LambdaType
 
 import cv2 as cv
 import os
@@ -14,6 +15,9 @@ class InputImage:
         else:
             self.filePath = path
 
+# loads every image in a directory - absolute or relative
+# fromDirectory("directory")
+# doesn't check for file types etc.
 def fromDirectory(path) -> List[InputImage]:
     absolute = os.path.abspath(path)
     result = []
@@ -22,15 +26,9 @@ def fromDirectory(path) -> List[InputImage]:
         result.append(InputImage(cv.imread(filePath), filePath))
     return result
 
-def fromPaths(paths) -> List[InputImage]:
-    result = []
-    for path in os.listdir(paths):
-        absolute = os.path.abspath(path)
-        if not os.path.isfile(absolute):
-            continue
-        result.append(InputImage(cv.imread(absolute), absolute))
-    return result
-
+# loads images from file paths - absolute or relative
+# fromFiles("path1", "path2", ...)
+# doesn't check for file types etc.
 def fromFiles(*files) -> List[InputImage]:
     result = []
     for file in files:
@@ -40,6 +38,7 @@ def fromFiles(*files) -> List[InputImage]:
         result.append(InputImage(cv.imread(absolute), absolute))
     return result
 
+# loads in-memory images - OpenCV's imread etc.
 def fromImages(*images) -> List[InputImage]:
     result = []
     for image in images:
@@ -107,31 +106,12 @@ class BaseAlgorithm:
         self.imageData = []
         self.results: List[BaseAlgorithm.MatchingResult] = []
         self.iteration = iteration
-    """
-    Overall structure of the algorithm stays the same
-
-    1) preprocess image database
-       for each part:
-        2) calculate descriptors
-        3) somehow match them to the image database
-        4) save match as result
-
-    5) write results to files
-    6) process diagnostic data
-    7) print result
-
-    - matching could be used in multiple ways
-        - match 1:1 (basically check if image contains part)
-        - match 1:N (matching part in a database)
-        - match N:1 (find parts in image) 
-        - match N:N (match all parts in database)
-    - this could somehow mimic the constructor/static create method
-    - for now, let's accept paths only as input
-        - constructor(partType, parts, imageType, images, outputDir)
-    - maybe utilize a builder pattern of some sort later
-    """
 
     def process(self) -> List[MatchingResult]:
+        # overall structure of the algorithms stays the same
+        # 1) preprocess images
+        # 2) process parts, which includes matching them with the images
+        # (optional) 3) use results - write them into files, print diagnostic data etc.
         self.diagnostics.totalTime = timer()
         self.processImages()
         self.processParts()
@@ -141,18 +121,45 @@ class BaseAlgorithm:
     # implement in child algorithms
 
     def processImages(self):
+        """
+        Preprocesses loaded images
+        """
         pass
 
     def processParts(self):
+        """
+        Processes loaded parts and matches them with loaded images
+        """
         pass
 
     def writeResults(self, target, includePart=False):
-        pass
+        """
+        Writes the match results into files
+
+        :param target: Directory path (string) or a lambda that takes result index (int) and returns a path for the actual file
+        :param includePart: Boolean, if the saved result should include the searched part or not
+        """
+        isLambda = isinstance(target, LambdaType)
+        for i, result in enumerate(self.results):
+            path = os.path.abspath(f"{target}/{i}.jpg") if not isLambda else os.path.abspath(target(i))
+            self.writeSingleResult(result, path, includePart)
 
     def writeSingleResult(self, result, path, includePart=False):
+        """
+        Writes a single match result into a file
+
+        :param result: Matching result (actual MatchingResult object)
+        :param path: Path, where the result should be saved
+        :param includePart: Boolean, if the saved result should include the searched part or not
+        """
         pass
 
     def printResults(self, filename=None):
+        """
+        Prints the measured results into file or in the console
+
+        :param filename: (optional) Path of the file, where the results should be saved (string)
+        """
         pass
 
     @staticmethod
